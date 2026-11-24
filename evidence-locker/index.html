@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidence Locker · Precinct Noir</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--night:#1c1612;--sepia:#2b2118;--cork:#a8784b;--amber:#e0a43a;--paper:#f4ead6;--red:#c0392b;--ink:#231c16}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lora',serif;color:var(--paper);background:var(--night);min-height:100vh}
+a.back{position:fixed;top:12px;left:16px;color:var(--amber);font-family:'Courier Prime';text-decoration:none;font-size:14px;z-index:20}
+.top{padding:44px 24px 14px;text-align:center;background:linear-gradient(#000a,#0000),repeating-linear-gradient(90deg,#211a14 0 3px,#1c1612 3px 9px)}
+h1{font-family:'Bebas Neue';font-size:64px;letter-spacing:.06em;color:var(--amber);text-shadow:0 0 18px #e0a43a55}
+.sub{font-family:'Courier Prime';color:#cdbb9a}
+.layout{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;padding:18px 22px 40px;max-width:1500px;margin:0 auto}
+.cork{background:radial-gradient(circle at 20% 30%,#b8875799 2px,transparent 3px),radial-gradient(circle at 70% 60%,#8e623a99 2px,transparent 3px),var(--cork);
+  background-size:14px 14px,18px 18px,auto;border:14px solid #5a3d24;border-radius:6px;padding:18px;max-height:calc(100vh - 150px);overflow:auto;box-shadow:inset 0 0 40px #0006}
+.src{background:var(--paper);color:var(--ink);padding:12px 12px 16px;margin:0 0 20px;box-shadow:3px 5px 10px #0007;position:relative}
+.src:nth-child(odd){transform:rotate(-.5deg)} .src:nth-child(even){transform:rotate(.45deg)}
+.src:before{content:'';position:absolute;top:-8px;left:50%;width:16px;height:16px;background:#c0392b;border-radius:50%;box-shadow:1px 2px 2px #0008}
+.src-title{font-family:'Bebas Neue';font-size:22px;letter-spacing:.04em;margin-bottom:4px}
+.src-cmd{font-family:'Courier Prime';font-size:12.5px;color:#6b5a45;margin-bottom:6px}
+.src-table{border-collapse:collapse;font-family:'Courier Prime';font-size:12.5px;width:100%}
+.src-table th{text-align:left;border-bottom:2px solid #8a7457;padding:3px 5px;font-size:11.5px}
+.src-table td{padding:3px 5px;border-bottom:1px dotted #c8b79a}
+.src-log{font-family:'Courier Prime';font-size:12.5px;line-height:1.45}
+.src-log .ln{display:flex;gap:8px;padding:2px 4px}
+.lnno{color:#8a7457;min-width:20px;text-align:right;font-weight:700}
+.ln{cursor:pointer;border-radius:2px}
+.ln:hover{background:#f1d79a}
+.ln.pinned{background:#f3c561;outline:2px solid var(--red)}
+.ln.goodpin{background:#bfe3b4;outline:2px solid #2e7d32}
+.ln.badpin{background:#f2b8b0;outline:2px solid var(--red)}
+.board{background:var(--sepia);border:2px solid #4b3a2a;border-radius:6px;padding:22px;position:sticky;top:14px;align-self:start;max-height:calc(100vh - 40px);overflow:auto}
+.case{font-family:'Courier Prime';font-size:13px;color:#cdbb9a;letter-spacing:.08em}
+.pl{font-family:'Bebas Neue';font-size:30px;color:var(--amber);letter-spacing:.04em;margin-top:6px}
+.pr{line-height:1.55;margin:8px 0 14px;font-size:16px}
+.step{border-top:1px dashed #5c4836;padding-top:12px;margin-top:12px}
+.step h3{font-family:'Bebas Neue';font-size:22px;letter-spacing:.05em;color:#f0d9b0}
+.step p{font-size:14px;color:#cdbb9a;margin:4px 0 8px}
+.pins{font-family:'Courier Prime';font-size:13.5px;min-height:22px}
+.pins span{display:inline-block;background:var(--paper);color:var(--ink);padding:2px 8px;margin:3px 6px 3px 0;border-left:4px solid var(--red)}
+.btn{font-family:'Bebas Neue';font-size:20px;letter-spacing:.06em;padding:9px 18px;border:2px solid var(--amber);background:transparent;color:var(--amber);cursor:pointer;margin-top:8px}
+.btn:hover,.btn.primary{background:var(--amber);color:var(--night)}
+.btn:disabled{opacity:.35;cursor:default}
+.tile{display:block;width:100%;text-align:left;font-family:'Courier Prime';font-size:14.5px;line-height:1.4;padding:10px 12px;margin:7px 0;background:var(--paper);color:var(--ink);border:3px solid transparent;cursor:pointer;box-shadow:2px 3px 0 #0006}
+.tile:hover{border-color:var(--amber)} .tile.right{border-color:#2e7d32;background:#d4ecd0} .tile.wrong{border-color:var(--red);background:#f3cfc9}
+.msg{font-family:'Courier Prime';font-size:14px;margin-top:8px;padding:8px 10px;border-left:4px solid var(--amber);background:#00000033}
+.msg.ok{border-color:#6fbf6a}.msg.no{border-color:var(--red)}
+.answer{background:var(--paper);color:var(--ink);font-family:'Courier Prime';padding:14px;margin-top:12px;line-height:1.5;border-left:6px solid #2e7d32}
+.prog{display:flex;gap:6px;margin:10px 0 0}
+.prog i{flex:1;height:6px;background:#4b3a2a}.prog i.d{background:var(--amber)}
+#strings{position:fixed;inset:0;pointer-events:none;z-index:10}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:30px auto;padding:0 20px}
+.casecard{background:var(--paper);color:var(--ink);padding:24px;text-align:left;cursor:pointer;border:0;box-shadow:5px 7px 0 #000;transform:rotate(-1deg);font-family:'Lora'}
+.casecard:nth-child(2){transform:rotate(1deg)}
+.casecard:hover{outline:4px solid var(--amber)}
+.casecard h2{font-family:'Bebas Neue';font-size:40px;letter-spacing:.04em}
+.casecard .stampx{display:inline-block;border:3px solid var(--red);color:var(--red);font-family:'Bebas Neue';font-size:20px;padding:2px 10px;transform:rotate(-6deg);margin-top:10px}
+.howto{max-width:900px;margin:0 auto;padding:0 20px;color:#cdbb9a;line-height:1.6}
+input[type=text]{font-family:'Courier Prime';font-size:16px;padding:7px;border:2px solid var(--amber);background:#0003;color:var(--paper)}
+table.rep{width:100%;border-collapse:collapse;font-family:'Courier Prime';font-size:14px;margin-top:12px}
+table.rep td,table.rep th{padding:6px;border-bottom:1px solid #5c4836;text-align:left}
+.report{max-width:900px;margin:20px auto;background:var(--paper);color:var(--ink);padding:30px}
+.report h2{font-family:'Bebas Neue';font-size:46px}
+.report table.rep td,.report table.rep th{border-color:#c8b79a}
+@media print{body{background:#fff}.back,.noprint,#strings,.top{display:none!important}.report{margin:0;box-shadow:none}}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.board{position:static}}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">← Back to the FRQ Funhouse</a>
+<div class="top noprint"><h1>EVIDENCE LOCKER</h1><div class="sub">Precinct Noir · Every claim needs a pin. Every pin needs a reason.</div></div>
+<div id="app"></div>
+<svg id="strings"></svg>
+<script src="../shared/common.js"></script>
+<script src="../shared/cases.js"></script>
+<script>
+const app=document.getElementById('app'); const svg=document.getElementById('strings');
+let S=null;
+function home(){
+  S=null; svg.innerHTML='';
+  app.innerHTML=`<div class="howto"><p style="margin-top:18px">Pick a case file. For each part of the FRQ you will:</p>
+  <p><b style="color:var(--amber)">1 · PIN</b> the exact line(s) or rule(s) in the sources that prove it. <b style="color:var(--amber)">2 · CLAIM</b> choose the claim a Reader would credit. <b style="color:var(--amber)">3 · REASON</b> choose the reasoning that links the evidence to the claim.</p>
+  <p>First-try pins earn full credit. A second try earns half. Detective name: <input type="text" id="nm" placeholder="optional"></p></div>
+  <div class="pick">${FRQ_CASES.map((c,i)=>`<button class="casecard" onclick="openCase(${i})"><div style="font-family:'Courier Prime';font-size:13px">CASE FILE #${i+1}</div><h2>${c.name}</h2><div>${FH.esc(c.org)}</div><div class="stampx">${c.parts.filter(p=>p.tiles).length} LEADS</div></button>`).join('')}</div>`;
+}
+function openCase(ci){
+  const c=FRQ_CASES[ci];
+  S={name:(document.getElementById('nm').value||'').trim(),c:c,tasks:c.parts.filter(p=>p.tiles),t:0,res:[]};
+  app.innerHTML=`<div class="layout"><div class="cork" id="cork">${c.sources.map(s=>FH.renderSource(s)).join('')}</div><div class="board" id="board"></div></div>`;
+  document.querySelectorAll('.ln').forEach(el=>el.addEventListener('click',()=>togglePin(el)));
+  document.getElementById('cork').addEventListener('scroll',drawStrings);
+  task();
+}
+function task(){
+  const p=S.tasks[S.t]; S.pins=new Set(); S.step=1; S.tries=0; S.cur={part:p.label,ev:0,claim:0,reason:0};
+  document.querySelectorAll('.ln').forEach(el=>el.classList.remove('pinned','goodpin','badpin'));
+  const b=document.getElementById('board');
+  b.innerHTML=`<div class="case">${S.c.name} · ${FH.esc(S.c.org)}</div>
+  <div class="prog">${S.tasks.map((_,i)=>`<i class="${i<S.t?'d':''}"></i>`).join('')}</div>
+  <div class="pl">Part ${p.label} · ${p.verb}</div><div class="pr">${FH.esc(p.text)}</div>
+  <div class="step" id="st1"><h3>1 · Pin the evidence</h3><p>Click the line(s) on the cork board that support your answer${p.need>1?' (at least '+p.need+')':''}${p.max===1?' (just one)':''}.${p.evidence.length>1?' This one needs a log line AND the rule behind it.':''}</p>
+   <div class="pins" id="pins"><span style="opacity:.5">No pins yet</span></div><button class="btn primary" onclick="checkPins()">LOCK EVIDENCE</button><div id="m1"></div></div>
+  <div class="step" id="st2" style="opacity:.35"></div><div class="step" id="st3" style="opacity:.35"></div><div id="fin"></div>`;
+  drawStrings();
+}
+function togglePin(el){
+  if(!S||S.step!==1) return; const id=el.dataset.line;
+  if(S.pins.has(id)){S.pins.delete(id);el.classList.remove('pinned');} else {S.pins.add(id);el.classList.add('pinned');}
+  const pe=document.getElementById('pins');
+  pe.innerHTML=S.pins.size?[...S.pins].map(i=>`<span>${FH.lineLabel(i)}</span>`).join(''):'<span style="opacity:.5">No pins yet</span>';
+  drawStrings();
+}
+function checkPins(){
+  if(S.step!==1) return;
+  const p=S.tasks[S.t]; const allowed=new Set(p.evidence.flat()); const sel=[...S.pins];
+  const wrong=sel.filter(x=>!allowed.has(x)); const need=p.need||1; let probs=[];
+  if(!sel.length) probs.push('Pin something first. A claim with no evidence earns no point.');
+  if(wrong.length) probs.push('These pins do not support this part: '+wrong.map(FH.lineLabel).join(', ')+'.');
+  p.evidence.forEach((g,gi)=>{const n=sel.filter(x=>g.includes(x)).length; const req=gi===0?need:1;
+    if(n<req) probs.push(gi===0?(req>1?'You need at least '+req+' lines that show the pattern.':'You are missing the key log line or item.'):'You also need the firewall RULE that caused it (Source 1).');});
+  if(p.max&&sel.length>p.max) probs.push('Pick just one file to explain.');
+  S.tries++; const m=document.getElementById('m1');
+  if(!probs.length){
+    S.cur.ev=S.tries===1?1:.5;
+    sel.forEach(id=>document.querySelector(`[data-line="${id}"]`).classList.add('goodpin'));
+    m.innerHTML=`<div class="msg ok">Evidence locked${S.tries>1?' (second try, half credit)':''}. Readers can see exactly what you're pointing at.</div>`;
+    toStep2();
+  } else if(S.tries>=2){
+    S.cur.ev=0; S.pins=new Set(p.evidence.map(g=>g.slice(0,(g===p.evidence[0]?need:1))).flat());
+    document.querySelectorAll('.ln').forEach(el=>el.classList.remove('pinned'));
+    S.pins.forEach(id=>document.querySelector(`[data-line="${id}"]`).classList.add('goodpin'));
+    m.innerHTML=`<div class="msg no">${probs.join(' ')}<br>The detective sergeant pinned it for you: ${[...S.pins].map(FH.lineLabel).join(', ')}.</div>`;
+    toStep2();
+  } else {
+    m.innerHTML=`<div class="msg no">${probs.join(' ')} One more try.</div>`;
+  }
+  drawStrings();
+}
+function tiles(kind,stepId,next){
+  const p=S.tasks[S.t]; const arr=p.tiles[kind].map((t,i)=>({t,ok:i===p.tiles.correct[kind==='claim'?0:1]}));
+  const st=document.getElementById(stepId); st.style.opacity=1;
+  st.innerHTML=`<h3>${kind==='claim'?'2 · Make the claim':'3 · Connect it with reasoning'}</h3><p>${kind==='claim'?'Which claim would a Reader credit?':'Which reasoning ties your evidence to the claim?'}</p>`+
+   FH.shuffle(arr).map(a=>`<button class="tile" data-ok="${a.ok}">${FH.esc(a.t)}</button>`).join('');
+  st.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{
+    if(st.dataset.done) return; st.dataset.done=1; const ok=b.dataset.ok==='true';
+    st.querySelectorAll('.tile').forEach(x=>{if(x.dataset.ok==='true')x.classList.add('right');}); if(!ok)b.classList.add('wrong');
+    S.cur[kind]=ok?1:0; next();
+  });
+}
+function toStep2(){S.step=2; tiles('claim','st2',()=>tiles('reason','st3',finish));}
+function finish(){
+  const p=S.tasks[S.t]; S.res.push(S.cur);
+  const pts=S.cur.ev+S.cur.claim+S.cur.reason;
+  document.getElementById('fin').innerHTML=`<div class="answer"><b>Case-closed answer (${pts}/3 this lead):</b><br>${FH.esc(p.model)}<br><br><i>Why it earns the point:</i> ${FH.esc(p.rule)}</div>
+  <button class="btn primary" onclick="nextTask()">${S.t<S.tasks.length-1?'NEXT LEAD →':'CLOSE THE CASE →'}</button>`;
+  document.getElementById('fin').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function nextTask(){ if(S.t<S.tasks.length-1){S.t++;task();document.getElementById('board').scrollTop=0;} else report(); }
+function report(){
+  svg.innerHTML='';
+  const tot=S.res.reduce((a,r)=>a+r.ev+r.claim+r.reason,0), max=S.res.length*3, pct=Math.round(tot/max*100);
+  const ev=S.res.reduce((a,r)=>a+r.ev,0), cl=S.res.reduce((a,r)=>a+r.claim,0), rs=S.res.reduce((a,r)=>a+r.reason,0);
+  FH.saveBest('evidence',pct);
+  const weakest=[['Pinning evidence',ev],['Choosing the claim',cl],['Reasoning',rs]].sort((a,b)=>a[1]-b[1])[0][0];
+  app.innerHTML=`<div class="report"><h2>CASE REPORT · ${S.c.name}</h2><div style="font-family:'Courier Prime'">${S.name?FH.esc(S.name)+' · ':''}${FH.today()}</div>
+  <p style="font-size:54px;font-family:'Bebas Neue';color:var(--red)">${pct}%</p>
+  <p>Evidence ${ev}/${S.res.length} · Claims ${cl}/${S.res.length} · Reasoning ${rs}/${S.res.length}</p>
+  <p><b>Work on next:</b> ${weakest}.</p>
+  <table class="rep"><tr><th>Part</th><th>Pins</th><th>Claim</th><th>Reasoning</th></tr>${S.res.map(r=>`<tr><td>${r.part}</td><td>${r.ev}</td><td>${r.claim}</td><td>${r.reason}</td></tr>`).join('')}</table>
+  <p class="noprint" style="margin-top:18px"><button class="btn primary" style="color:#1c1612" onclick="window.print()">SAVE AS PDF</button> <button class="btn" style="color:#8a5a12;border-color:#8a5a12" onclick="home()">NEW CASE</button></p></div>`;
+}
+function drawStrings(){
+  if(!S||!document.getElementById('board')){svg.innerHTML='';return;}
+  const b=document.getElementById('board').getBoundingClientRect(); const cork=document.getElementById('cork').getBoundingClientRect();
+  let h='';
+  document.querySelectorAll('.ln.pinned,.ln.goodpin').forEach(el=>{
+    const r=el.getBoundingClientRect(); if(r.bottom<cork.top||r.top>cork.bottom) return;
+    const x1=Math.min(r.right,cork.right-14), y1=r.top+r.height/2, x2=b.left+6, y2=b.top+120;
+    h+=`<path d="M${x1} ${y1} Q ${(x1+x2)/2} ${Math.max(y1,y2)+40} ${x2} ${y2}" stroke="#c0392b" stroke-width="2.2" fill="none" opacity=".85"/><circle cx="${x1}" cy="${y1}" r="4" fill="#c0392b"/>`;
+  });
+  svg.innerHTML=h+(h?`<circle cx="${b.left+6}" cy="${b.top+120}" r="6" fill="#c0392b"/>`:'');
+}
+window.addEventListener('resize',drawStrings); window.addEventListener('scroll',drawStrings);
+home();
+</script>
+</body>
+</html>

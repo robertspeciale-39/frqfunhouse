@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Clock · 50 Minutes to Launch</title>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--beige:#d9ceb3;--beige2:#c9bc9c;--panel:#2a2b2a;--orange:#ff9a1f;--green:#5fd35f;--red:#e5533d;--ink:#1d1d1b;--cream:#f3ecd9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:#3b3a35;min-height:100vh}
+a.back{position:fixed;top:10px;left:14px;color:var(--orange);font-family:'IBM Plex Mono';text-decoration:none;font-size:13px;z-index:30}
+.console{background:var(--beige);border-bottom:6px solid #a69878;padding:34px 22px 14px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;position:sticky;top:0;z-index:20;
+  box-shadow:0 6px 18px #0007}
+.brand{font-family:'Michroma';font-size:22px;letter-spacing:.08em}
+.brand small{display:block;font-size:11px;letter-spacing:.25em;color:#6b6250}
+.readout{background:#0d0d0c;color:var(--orange);font-family:'IBM Plex Mono';font-weight:600;font-size:40px;padding:4px 16px;border-radius:6px;border:3px solid #6b6250;
+  text-shadow:0 0 10px #ff9a1f88;min-width:170px;text-align:center}
+.readout.warn{color:var(--red);text-shadow:0 0 10px #e5533d99}
+.phases{display:flex;gap:8px;flex:1;min-width:380px}
+.ph{flex:1;background:var(--beige2);border:2px solid #8a7d60;border-radius:6px;padding:6px 8px;font-family:'Michroma';font-size:10.5px;letter-spacing:.08em;position:relative}
+.ph b{display:block;font-family:'IBM Plex Mono';font-size:13px}
+.ph:before{content:'';position:absolute;top:7px;right:8px;width:10px;height:10px;border-radius:50%;background:#6b6250}
+.ph.on{background:#efe6cf}.ph.on:before{background:var(--orange);box-shadow:0 0 8px var(--orange)}
+.ph.done:before{background:var(--green);box-shadow:0 0 6px var(--green)}
+.toggle{font-family:'Michroma';font-size:12px;letter-spacing:.1em;padding:12px 16px;border:3px solid var(--ink);border-radius:8px;background:var(--orange);cursor:pointer;box-shadow:0 4px 0 #7a4a0e}
+.toggle:active{transform:translateY(3px);box-shadow:0 1px 0 #7a4a0e}
+.toggle.grey{background:var(--beige2);box-shadow:0 4px 0 #6b6250}
+.coach{background:#0d0d0c;color:var(--green);font-family:'IBM Plex Mono';font-size:13.5px;padding:8px 22px;border-bottom:2px solid #000;min-height:36px;position:sticky;z-index:19}
+.coach.alert{color:var(--orange)}
+.main{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;padding:18px 22px 40px}
+.panel{background:var(--panel);border-radius:10px;padding:14px;border:3px solid #111;box-shadow:inset 0 0 0 2px #444}
+.panel h2{font-family:'Michroma';font-size:13px;letter-spacing:.14em;color:var(--orange);margin-bottom:10px}
+.srcwrap{max-height:calc(100vh - 230px);overflow:auto}
+.src{background:var(--cream);border-radius:6px;padding:10px 12px;margin-bottom:12px}
+.src-title{font-family:'Michroma';font-size:11.5px;letter-spacing:.06em;margin-bottom:4px}
+.src-cmd{font-family:'IBM Plex Mono';font-size:12px;color:#6b6250}
+.src-table{border-collapse:collapse;width:100%;font-family:'IBM Plex Mono';font-size:12px}
+.src-table th{text-align:left;border-bottom:2px solid #8a7d60;padding:2px 4px}
+.src-table td{padding:2px 4px;border-bottom:1px dotted #c9bc9c}
+.src-log{font-family:'IBM Plex Mono';font-size:12px;line-height:1.45}
+.src-log .ln{display:flex;gap:8px;padding:1px 3px}
+.lnno{color:#8a7d60;min-width:18px;text-align:right;font-weight:600}
+.ln{cursor:pointer}.ln:hover{background:#f6dfae}.ln.tag{background:#ffd48a;box-shadow:inset 3px 0 0 var(--orange)}
+.partswrap{max-height:calc(100vh - 230px);overflow:auto}
+.part{background:var(--cream);border-radius:6px;padding:12px 14px;margin-bottom:12px;border-left:6px solid #8a7d60}
+.part.focus{border-left-color:var(--orange)}
+.part .hd{display:flex;justify-content:space-between;align-items:center;font-family:'Michroma';font-size:12px;letter-spacing:.06em}
+.part .t{font-size:15px;line-height:1.45;margin:6px 0 8px}
+.part .vb{font-weight:700;background:#ffd48a;padding:0 4px;border-radius:3px}
+.part textarea{width:100%;min-height:74px;font-family:'IBM Plex Sans';font-size:15px;padding:8px;border:2px solid #8a7d60;border-radius:4px;background:#fffdf6;resize:vertical}
+.part textarea.cmd{font-family:'IBM Plex Mono'}
+.part .tm{font-family:'IBM Plex Mono';font-size:12px;color:#6b6250}
+select{font-family:'IBM Plex Mono';font-size:13px;padding:3px}
+.grouph{font-family:'Michroma';font-size:12px;color:var(--orange);letter-spacing:.14em;margin:14px 0 6px}
+.brief{max-width:900px;margin:30px auto;background:var(--beige);border-radius:12px;padding:30px;border:4px solid #8a7d60}
+.brief h1{font-family:'Michroma';font-size:34px;letter-spacing:.06em}
+.brief p{line-height:1.6;margin:10px 0}
+.casebtn{display:block;width:100%;text-align:left;background:#efe6cf;border:3px solid var(--ink);border-radius:8px;padding:14px 16px;margin:10px 0;cursor:pointer;font:inherit}
+.casebtn:hover{background:#fff}.casebtn b{font-family:'Michroma';font-size:16px}
+.casebtn.sel{background:#ffe0a8;border-color:var(--orange)}
+.check{display:flex;gap:10px;align-items:flex-start;background:var(--cream);border-radius:6px;padding:10px 12px;margin:8px 0;font-size:15px;cursor:pointer}
+.check input{transform:scale(1.4);margin-top:4px}
+.flag{font-family:'IBM Plex Mono';font-size:12.5px;margin-top:6px}
+.flag .ok{color:#1d7a1d}.flag .w{color:#b3401f}
+.rep{max-width:1000px;margin:24px auto;background:#fff;padding:30px 34px;border-radius:8px}
+.rep h1{font-family:'Michroma';font-size:28px}
+.rep .row{border-top:2px solid #ddd;padding:12px 0}
+.rep .lab{font-family:'Michroma';font-size:12px;letter-spacing:.06em}
+.rep .ans{background:#f6f2e6;padding:8px 10px;border-radius:4px;margin:6px 0;font-size:14.5px;white-space:pre-wrap}
+.printonly{display:none}
+.rep .model{font-size:14px;color:#2f4f2f;margin-top:4px}
+.rep .rule{font-size:13.5px;color:#555}
+.ss{display:inline-flex;gap:6px}.ss button{font-family:'IBM Plex Mono';padding:3px 10px;border:2px solid #333;background:#fff;cursor:pointer;border-radius:4px}
+.ss button.sel1{background:#1d7a1d;color:#fff}.ss button.sel0{background:#b3401f;color:#fff}
+.big{font-family:'Michroma';font-size:48px;color:#b35a00}
+input[type=text]{font-family:'IBM Plex Mono';font-size:15px;padding:6px 8px;border:2px solid var(--ink)}
+@media print{.printonly{display:inline}body{background:#fff}.back,.noprint,.console,.coach{display:none!important}.rep{margin:0;padding:0}}
+@media (max-width:1000px){.main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="back noprint" href="../index.html">← Back to the FRQ Funhouse</a>
+<div id="top"></div>
+<div id="app"></div>
+<script src="../shared/common.js"></script>
+<script src="../shared/cases.js"></script>
+<script>
+const PHASES=[{k:'read',n:'READ PROMPT',m:3},{k:'skim',n:'SKIM SOURCES',m:7},{k:'answer',n:'ANSWER',m:35},{k:'review',n:'REVIEW',m:5}];
+const VERBS=['Identify','Describe','Determine','Explain','Write'];
+const SELFCHECK=['Every Explain answer has a reason AND specific evidence.','I cited log lines, rule numbers, IPs, permission strings or policy items.','Every Write answer is a valid command that does exactly what I described.','When asked about permissions, I covered owner, group AND others, and named the file.','Every "Other than…" clause in the prompt is respected.','No subpart is blank, and no answer hedges with two choices.'];
+const topEl=document.getElementById('top'), app=document.getElementById('app');
+let S=null, TT=null;
+function briefing(){
+  clearInterval(TT); topEl.innerHTML=''; S={ci:0,name:'',pace:'exam'};
+  app.innerHTML=`<div class="brief"><h1>MISSION CLOCK</h1><div style="font-family:Michroma;font-size:12px;letter-spacing:.2em;color:#6b6250">50 MINUTES TO LAUNCH · DEVICE SECURITY ANALYSIS</div>
+  <p>This is a full practice FRQ: six sources, Parts A–E, 14 points. Mission Control runs the clock in four phases, the same split strong test-takers use:</p>
+  <p><b>3:00 Read the prompt</b> and mark every task verb · <b>7:00 Skim the sources</b> and tag suspicious lines · <b>35:00 Answer</b> part by part (about 2½ minutes each) · <b>5:00 Review</b> with the launch checklist.</p>
+  <p>At launch you get a report with automatic flags, the official-style scoring rule, a model answer, and a self-score for each part. Save it as a PDF for your teacher.</p>
+  <h3 style="font-family:Michroma;font-size:14px;margin-top:16px">CHOOSE YOUR DEVICE</h3>
+  ${FRQ_CASES.map((c,i)=>`<button class="casebtn ${i===0?'sel':''}" data-i="${i}"><b>${c.name}</b><br>${FH.esc(c.org)}</button>`).join('')}
+  <h3 style="font-family:Michroma;font-size:14px;margin-top:16px">PACE</h3>
+  <label class="check"><input type="radio" name="pace" value="exam" checked> <span><b>Exam pace</b>: the real 50 minutes. Phases advance automatically.</span></label>
+  <label class="check"><input type="radio" name="pace" value="train"> <span><b>Training pace</b>: the clock counts UP so you can see your times, and phases advance when you say.</span></label>
+  <p>Call sign (name on your report): <input type="text" id="nm" placeholder="optional"></p>
+  <p style="margin-top:14px"><button class="toggle" onclick="launchPrep()">BEGIN COUNTDOWN</button></p></div>`;
+  document.querySelectorAll('.casebtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.casebtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');S.ci=+b.dataset.i;});
+}
+function launchPrep(){
+  const c=FRQ_CASES[S.ci];
+  S={ci:S.ci,c:c,name:(document.getElementById('nm').value||'').trim(),pace:document.querySelector('input[name=pace]:checked').value,
+     phase:0,elapsed:0,phaseStart:0,ans:{},verbs:{},tags:[],spent:{},focus:null,checks:[],self:{}};
+  const draft=FH.load('mc_'+c.id,null);
+  if(draft&&draft.ans&&Object.values(draft.ans).some(v=>v)&&confirm('You have an unfinished draft for '+c.name+'. Load it?')) Object.assign(S.ans,draft.ans);
+  renderTop(); renderPhase();
+  TT=setInterval(tick,1000);
+}
+// read/skim get fixed slices from when they start; any time saved rolls into ANSWER (ends 45:00), REVIEW ends at 50:00
+function deadline(){return [S.phaseStart+180,S.phaseStart+420,2700,3000][S.phase];}
+function fmt(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function tick(){
+  S.elapsed++;
+  if(S.focus&&PHASES[S.phase].k==='answer') S.spent[S.focus]=(S.spent[S.focus]||0)+1;
+  if(S.pace==='exam'&&S.elapsed>=deadline()){ if(S.phase<PHASES.length-1){nextPhase(true);} else {finish(true);return;} }
+  updateClock(); coach();
+}
+function renderTop(){
+  topEl.innerHTML=`<div class="console noprint"><div class="brand">MISSION CLOCK<small>${S.c.name}</small></div><div class="readout" id="clock">50:00</div>
+  <div class="phases">${PHASES.map((p,i)=>`<div class="ph ${i===S.phase?'on':i<S.phase?'done':''}">${p.n}<b>${p.m}:00</b></div>`).join('')}</div>
+  <button class="toggle" id="adv" onclick="${S.phase<3?'nextPhase(false)':'finish(false)'}">${S.phase<3?'NEXT PHASE ▸':'LAUNCH ▲'}</button></div><div class="coach" id="coach">Mission Control online.</div>`;
+  document.getElementById('coach').style.top=document.querySelector('.console').offsetHeight+'px';
+  updateClock();
+}
+function updateClock(){
+  const el=document.getElementById('clock'); if(!el) return;
+  if(S.pace==='exam'){const left=50*60-S.elapsed; el.textContent=fmt(left); el.classList.toggle('warn',left<=300);}
+  else el.textContent=fmt(S.elapsed);
+}
+function coach(){
+  const el=document.getElementById('coach'); if(!el) return; const P=PHASES[S.phase]; let msg, alert=false;
+  const inPhase=S.elapsed-S.phaseStart;
+  if(P.k==='read'){ const marked=Object.keys(S.verbs).length; msg='READ: mark the task verb for each part ('+marked+'/14 marked). Target: done by 03:00 of phase time ('+fmt(inPhase)+' used).'; }
+  else if(P.k==='skim'){ msg='SKIM: click lines that look like attacks, blocks, risky permissions or weak policy. '+S.tags.length+' line(s) tagged. All six sources describe the SAME device: connect them.'; }
+  else if(P.k==='answer'){
+    const blank=S.c.parts.filter(p=>!(S.ans[p.id]||'').trim()).length;
+    msg='ANSWER: '+(14-blank)+'/14 parts drafted. Budget ≈ 2:30 per part.';
+    if(S.focus){const sp=S.spent[S.focus]||0; const lab=S.c.parts.find(p=>p.id===S.focus).label; msg+=' On '+lab+' for '+fmt(sp)+'.';
+      if(sp>240){alert=true;msg+=' ⚠ Over 4 minutes on one point. Write your best answer and MOVE ON.';}}
+    if(S.pace==='exam'){const left=2700-S.elapsed; if(left<=300&&blank){alert=true;msg+=' ⚠ '+fmt(left)+' left in ANSWER and '+blank+' blank part(s). A short attempt beats a blank.';}}
+  } else { msg='REVIEW: work the launch checklist. Fix anything flagged ⚠, then LAUNCH.'; }
+  el.textContent=msg; el.classList.toggle('alert',alert);
+}
+function nextPhase(auto){
+  if(S.phase>=3) return; S.phase++;
+  S.phaseStart=S.elapsed;
+  renderTop(); renderPhase(); window.scrollTo(0,0);
+}
+function saveDraft(){FH.save('mc_'+S.c.id,{ans:S.ans});}
+function srcPanel(){return `<div class="panel"><h2>SOURCES · ${FH.esc(S.c.intro)}</h2><div class="srcwrap">${S.c.sources.map(s=>FH.renderSource(s)).join('')}</div></div>`;}
+function bindTags(){document.querySelectorAll('.ln').forEach(el=>{if(S.tags.includes(el.dataset.line))el.classList.add('tag');el.onclick=()=>{const id=el.dataset.line;const i=S.tags.indexOf(id);if(i>=0){S.tags.splice(i,1);el.classList.remove('tag');}else{S.tags.push(id);el.classList.add('tag');}coach();};});}
+function hl(text,verb){return FH.esc(text).replace(new RegExp('\\b('+verb+')\\b','i'),'<span class="vb">$1</span>');}
+function renderPhase(){
+  const P=PHASES[S.phase], c=S.c;
+  if(P.k==='read'){
+    app.innerHTML=`<div class="main" style="grid-template-columns:1fr"><div class="panel"><h2>PHASE 1 · READ THE PROMPT · Mark the task verb for every part before you touch the sources</h2><div class="partswrap" style="max-height:none">
+    ${groups().map(g=>`<div class="grouph">PART ${g}</div>`+c.parts.filter(p=>p.group===g).map(p=>`<div class="part"><div class="hd"><span>${p.label}</span>
+     <select data-p="${p.id}"><option value="">verb?</option>${VERBS.map(v=>`<option ${S.verbs[p.id]===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="t">${FH.esc(p.text)}</div></div>`).join('')).join('')}</div></div></div>`;
+    document.querySelectorAll('select[data-p]').forEach(s=>s.onchange=()=>{if(s.value)S.verbs[s.dataset.p]=s.value;else delete S.verbs[s.dataset.p];coach();});
+  } else if(P.k==='skim'){
+    app.innerHTML=`<div class="main">${srcPanel()}<div class="panel"><h2>PHASE 2 · SKIM · What to tag</h2><div class="partswrap">
+    <div class="part"><div class="t"><b>Firewall rules (S1):</b> what is allowed from ALL? Where is the deny-all?<br><b>Auth log (S2):</b> many failures, one IP, seconds apart.<br><b>Firewall log (S3):</b> every BLOCK line, and which rule caused it.<br><b>Web log (S4):</b> odd characters in the URL: ' OR, UNION, &lt;script&gt;, ../<br><b>Permissions (S5):</b> who has w or x who shouldn't?<br><b>Policy (S6):</b> which item is weak and could be modified?</div></div>
+    <div class="grouph">YOUR TAGS</div><div class="part"><div class="t" id="taglist"></div></div></div></div></div>`;
+    bindTags(); const tl=()=>{document.getElementById('taglist').innerHTML=S.tags.length?S.tags.map(FH.lineLabel).join(' · '):'Click lines on the left to tag them.';};
+    tl(); document.querySelectorAll('.ln').forEach(el=>el.addEventListener('click',tl));
+  } else if(P.k==='answer'||P.k==='review'){
+    app.innerHTML=`<div class="main">${srcPanel()}<div class="panel"><h2>${P.k==='answer'?'PHASE 3 · ANSWER · Label every subpart · cite your evidence':'PHASE 4 · REVIEW · Launch checklist'}</h2><div class="partswrap">
+    ${P.k==='review'?`<div id="checklist">${SELFCHECK.map((q,i)=>`<label class="check"><input type="checkbox" data-i="${i}" ${S.checks[i]?'checked':''}> <span>${q}</span></label>`).join('')}</div>`:''}
+    ${groups().map(g=>`<div class="grouph">PART ${g}</div>`+c.parts.filter(p=>p.group===g).map(p=>`<div class="part" id="pt-${p.id}"><div class="hd"><span>${p.label} · ${p.verb}</span><span class="tm" id="tm-${p.id}"></span></div>
+     <div class="t">${hl(p.text,p.verb)}</div><textarea data-p="${p.id}" class="${p.verb==='Write'?'cmd':''}" placeholder="${p.verb==='Write'?'chmod …':'Your answer'}">${FH.esc(S.ans[p.id]||'')}</textarea>
+     ${P.k==='review'?`<div class="flag" id="fl-${p.id}">${flagsHTML(p)}</div>`:''}</div>`).join('')).join('')}</div></div></div>`;
+    bindTags();
+    document.querySelectorAll('textarea[data-p]').forEach(t=>{
+      t.onfocus=()=>{S.focus=t.dataset.p;document.querySelectorAll('.part').forEach(x=>x.classList.remove('focus'));t.closest('.part').classList.add('focus');};
+      t.oninput=()=>{S.ans[t.dataset.p]=t.value;saveDraft();if(P.k==='review'){const p=c.parts.find(x=>x.id===t.dataset.p);document.getElementById('fl-'+p.id).innerHTML=flagsHTML(p);}};
+    });
+    document.querySelectorAll('#checklist input').forEach(cb=>cb.onchange=()=>{S.checks[+cb.dataset.i]=cb.checked;});
+  }
+  coach();
+}
+function groups(){return [...new Set(S.c.parts.map(p=>p.group))];}
+/* ---------- automatic flags ---------- */
+function runChecks(p,text){
+  const t=(text||'').trim(), low=t.toLowerCase(), out=[];
+  if(!t){return [{ok:false,m:'Blank. A blank part can never earn its point.'}];}
+  for(const ch of p.checks||[]){
+    if(ch.k==='reason'){const ok=/\b(because|since|so that|so |which|this (means|prevents|protects|ensures|reduces|helps|stops|keeps)|prevent|protect|reduc|ensur|therefore|as a result)/i.test(t)&&t.split(/\s+/).length>=10;
+      out.push({ok,m:ok?'Gives a reason.':'Explain needs a reason: add a "because…" that says HOW or WHY.'});}
+    else if(ch.k==='cite'){const ok=/\b(line|lines|row|rule|item|source)s?\s*\d/i.test(t)||/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/.test(t);
+      out.push({ok,m:ok?'Cites specific evidence.':'No line, rule, item or IP cited. Point to the exact evidence.'});}
+    else if(ch.k==='any'||ch.k==='has'){const ok=ch.any.some(a=>low.includes(a));out.push({ok,m:ok?'Key detail present.':ch.msg});}
+    else if(ch.k==='not'){const bad=ch.any.filter(a=>low.includes(a));out.push({ok:!bad.length,m:bad.length?ch.msg+' (found: '+bad.join(', ').trim()+')':'No hedge or banned answer detected.'});}
+    else if(ch.k==='file'){const f=Object.keys(S.c.files).filter(f=>low.includes(f.toLowerCase()));out.push({ok:f.length>0,m:f.length?'Names the file ('+f.join(', ')+').':'Name the file. Missing file names cost the point.'});}
+    else if(ch.k==='chmod'){
+      const lines=t.split(/\n/).map(s=>s.trim()).filter(s=>/^(sudo\s+)?chmod\b/.test(s)).join('\n');
+      if(!lines){out.push({ok:false,m:'No chmod command found. Start the line with chmod.'});continue;}
+      const r=FH.runChmod(lines,S.c.files);
+      if(!r.ok){out.push({ok:false,m:r.error});continue;}
+      Object.entries(r.changed).forEach(([f,v])=>{
+        const b=FH.permToNums(v.before), a=FH.permToNums(v.after);
+        const restrict=a.every((x,i)=>(x&~b[i])===0)&&v.after!==v.before;
+        const msg=f+': -'+v.before+' → -'+v.after+'. ';
+        if(v.after==='---------') out.push({ok:false,m:msg+'That removes ALL permissions, which the prompt ruled out.'});
+        else if(a[0]===0) out.push({ok:false,m:msg+'The owner loses all access. Readers did not credit that.'});
+        else if(!restrict) out.push({ok:false,m:msg+(v.after===v.before?'Nothing changed: did you remove a permission the file doesn\'t have?':'This GRANTS access instead of restricting it.')});
+        else out.push({ok:true,m:msg+'Valid syntax and it restricts access. Make sure it matches your C (ii).'});
+      });
+    }
+  }
+  return out;
+}
+function flagsHTML(p){return runChecks(p,S.ans[p.id]).map(f=>`<div class="${f.ok?'ok':'w'}">${f.ok?'✓':'⚠'} ${FH.esc(f.m)}</div>`).join('');}
+/* ---------- launch / report ---------- */
+function finish(auto){
+  clearInterval(TT); FH.save('mc_'+S.c.id,null);
+  const c=S.c; topEl.innerHTML='';
+  const verbRight=c.parts.filter(p=>S.verbs[p.id]===p.verb).length;
+  const auto0=c.parts.map(p=>{const f=runChecks(p,S.ans[p.id]);return f.every(x=>x.ok)?1:0;});
+  c.parts.forEach((p,i)=>S.self[p.id]=auto0[i]);
+  app.innerHTML=`<div class="rep"><h1>MISSION REPORT · ${c.name}</h1>
+  <div style="font-family:'IBM Plex Mono';font-size:13px">${S.name?FH.esc(S.name)+' · ':''}${FH.today()} · ${S.pace==='exam'?'Exam pace':'Training pace'} · Time used ${fmt(S.elapsed)}${auto?' · Clock ran out':''}</div>
+  <p style="margin-top:10px"><span class="big" id="tot"></span> <span style="font-family:Michroma">/ 14 self-scored points</span></p>
+  <p>Verbs marked correctly in Phase 1: <b>${verbRight}/14</b> · Lines tagged while skimming: <b>${S.tags.length}</b> · Launch checklist: <b>${S.checks.filter(Boolean).length}/6</b></p>
+  <p class="noprint" style="font-size:14px;color:#555">Each part starts at 1 if every automatic flag passed, 0 if not. The flags are only hints. Compare your answer to the scoring rule and the model answer, then set the score honestly.</p>
+  ${c.parts.map(p=>{const f=runChecks(p,S.ans[p.id]);return `<div class="row"><div class="lab">${p.label} · ${p.verb} ${S.spent[p.id]?'· '+fmt(S.spent[p.id]):''}
+   <span class="ss noprint" data-p="${p.id}"><button data-v="1">1 pt</button><button data-v="0">0 pts</button></span><span class="printonly" id="ps-${p.id}"></span></div>
+   <div class="rule">${FH.esc(p.text)}</div><div class="ans">${FH.esc(S.ans[p.id]||'(blank)')}</div>
+   <div class="flag">${f.map(x=>`<div class="${x.ok?'ok':'w'}">${x.ok?'✓':'⚠'} ${FH.esc(x.m)}</div>`).join('')}</div>
+   <div class="rule"><b>Earns the point:</b> ${FH.esc(p.rule)}</div><div class="model"><b>Model answer:</b> ${FH.esc(p.model)}</div></div>`;}).join('')}
+  <p class="noprint" style="margin-top:18px"><button class="toggle" onclick="window.print()">SAVE AS PDF</button> <button class="toggle grey" onclick="briefing()">NEW MISSION</button></p></div>`;
+  document.querySelectorAll('.ss').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.self[g.dataset.p]=+b.dataset.v;paintSelf();}));
+  paintSelf();
+}
+function paintSelf(){
+  let t=0; S.c.parts.forEach(p=>{const v=S.self[p.id];t+=v;const g=document.querySelector(`.ss[data-p="${p.id}"]`);
+    g.querySelectorAll('button').forEach(b=>b.className=(+b.dataset.v===v)?'sel'+v:'');document.getElementById('ps-'+p.id).textContent=' · '+v+' pt';});
+  document.getElementById('tot').textContent=t; FH.saveBest('mission',Math.round(t/14*100));
+}
+briefing();
+</script>
+</body>
+</html>

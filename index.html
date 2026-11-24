@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The FRQ Funhouse · AP Cybersecurity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Josefin+Sans:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f6ecd6;--paper:#fbf5e6;--coral:#e86a58;--teal:#2f8f8a;--mustard:#e9b44c;--navy:#23395b;--ink:#2b2a33;--grass:#9cc58f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Josefin Sans',sans-serif;color:var(--ink);background:var(--cream);min-height:100vh;overflow-x:hidden}
+/* sky with sunburst */
+.sky{position:relative;padding:34px 20px 0;text-align:center;
+  background:repeating-conic-gradient(from 0deg at 50% 115%, #f9e6bd 0 6deg, #f6ecd6 6deg 12deg)}
+.flagline{position:absolute;top:0;left:0;right:0;height:28px;display:flex;justify-content:space-around;pointer-events:none}
+.flagline span{width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:22px solid var(--coral)}
+.flagline span:nth-child(3n+2){border-top-color:var(--teal)} .flagline span:nth-child(3n){border-top-color:var(--mustard)}
+.kicker{font-weight:700;letter-spacing:.35em;font-size:13px;color:var(--teal);text-transform:uppercase;margin-top:18px}
+h1{font-family:'Limelight',serif;font-size:clamp(46px,7vw,92px);color:var(--navy);line-height:1;margin:10px 0 4px;
+  text-shadow:4px 4px 0 var(--mustard),8px 8px 0 var(--coral)}
+.script{font-family:'Pacifico',cursive;color:var(--coral);font-size:clamp(20px,2.4vw,30px)}
+.facts{display:inline-flex;gap:0;margin:22px 0 0;border:3px solid var(--navy);border-radius:40px;overflow:hidden;background:var(--paper);box-shadow:5px 5px 0 var(--navy)}
+.facts div{padding:10px 20px;font-weight:700;font-size:15px;border-right:3px dashed var(--navy)}
+.facts div:last-child{border-right:0} .facts b{color:var(--coral);font-size:20px;margin-right:6px}
+
+/* fairground */
+.ground{position:relative;max-width:1240px;margin:0 auto;padding:40px 20px 30px}
+.track{position:absolute;left:4%;right:4%;top:72px;height:12px;background:var(--navy);border-radius:6px;box-shadow:0 4px 0 #15243b}
+.track:before{content:'';position:absolute;inset:3px 0;background:repeating-linear-gradient(90deg,transparent 0 22px,#3d5a86 22px 26px)}
+.pylon{position:absolute;top:84px;width:10px;height:70px;background:var(--navy)}
+.train{position:absolute;top:44px;left:10%;width:118px;height:34px;transform:translateX(-50%);transition:left .9s cubic-bezier(.6,-0.05,.3,1.15);z-index:3}
+.train svg{width:100%;height:100%;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.25))}
+.pavilions{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-top:120px;z-index:2}
+.pav{position:relative;text-decoration:none;color:var(--ink);background:var(--paper);border:3px solid var(--navy);border-radius:18px 18px 10px 10px;
+  padding:0 0 16px;text-align:center;box-shadow:6px 6px 0 var(--navy);transition:transform .2s, box-shadow .2s;display:flex;flex-direction:column;outline:none}
+.pav:hover,.pav:focus-visible{transform:translateY(-8px) rotate(-1deg);box-shadow:10px 14px 0 var(--navy)}
+.pav:focus-visible{outline:4px solid var(--mustard);outline-offset:4px}
+.pav .art{height:150px;border-radius:15px 15px 0 0;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.pav .art svg{width:88%;height:140px}
+.pav .num{position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:var(--coral);color:#fff;font-weight:700;width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;border:3px solid var(--navy);font-size:17px}
+.pav h2{font-family:'Limelight',serif;font-weight:400;font-size:23px;color:var(--navy);margin:14px 10px 4px;line-height:1.05}
+.pav .tag{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.pav p{font-size:14.5px;line-height:1.35;padding:0 14px;flex:1}
+.pav .go{margin:12px auto 0;background:var(--mustard);border:3px solid var(--navy);border-radius:30px;padding:8px 18px;font-weight:700;font-size:14px;letter-spacing:.08em}
+.pav:hover .go{background:var(--coral);color:#fff}
+.pav .best{font-size:12px;font-weight:700;color:var(--coral);margin-top:8px;min-height:15px}
+.lawn{height:46px;background:repeating-linear-gradient(90deg,var(--grass) 0 40px,#8cb97f 40px 80px);border-top:4px solid var(--navy)}
+
+/* verb ticket + tips */
+.lower{max-width:1100px;margin:0 auto;padding:36px 20px 50px;display:grid;grid-template-columns:1.25fr 1fr;gap:28px}
+.ticket{position:relative;background:var(--paper);border:3px solid var(--navy);border-radius:14px;padding:22px 26px;box-shadow:6px 6px 0 var(--teal)}
+.ticket:before,.ticket:after{content:'';position:absolute;top:50%;width:28px;height:28px;background:var(--cream);border:3px solid var(--navy);border-radius:50%;transform:translateY(-50%)}
+.ticket:before{left:-17px;clip-path:inset(0 0 0 50%)} .ticket:after{right:-17px;clip-path:inset(0 50% 0 0)}
+.ticket h3,.tips h3{font-family:'Limelight',serif;font-weight:400;color:var(--navy);font-size:26px;margin-bottom:10px}
+.verb{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-top:2px dashed #d8c9a6;font-size:15.5px;line-height:1.35}
+.verb b{color:var(--coral);font-size:17px}
+.verb.ex b{color:var(--teal)}
+.tips{background:var(--navy);color:var(--cream);border-radius:14px;padding:22px 26px;box-shadow:6px 6px 0 var(--coral)}
+.tips h3{color:var(--mustard)}
+.tips li{margin:10px 0 0 18px;line-height:1.4;font-size:15.5px}
+footer{text-align:center;padding:0 20px 34px;font-size:13px;color:#6a6152}
+@media (max-width:1000px){.pavilions{grid-template-columns:repeat(2,1fr)}.track,.train,.pylon{display:none}.pavilions{margin-top:20px}.lower{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="sky">
+  <div class="flagline"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="kicker">AP Cybersecurity · Section II Expo</div>
+  <h1>The FRQ Funhouse</h1>
+  <div class="script">Five pavilions. One question. Fourteen points.</div>
+  <div class="facts" aria-label="Exam facts">
+    <div><b>1</b>question</div><div><b>50</b>minutes</div><div><b>30%</b>of your score</div><div><b>6</b>sources, 1 device</div>
+  </div>
+</header>
+
+<main class="ground">
+  <div class="track" aria-hidden="true"></div>
+  <div class="pylon" style="left:14%" aria-hidden="true"></div><div class="pylon" style="left:38%" aria-hidden="true"></div>
+  <div class="pylon" style="left:62%" aria-hidden="true"></div><div class="pylon" style="left:86%" aria-hidden="true"></div>
+  <div class="train" id="train" aria-hidden="true">
+    <svg viewBox="0 0 120 36"><rect x="4" y="4" width="112" height="24" rx="12" fill="#e86a58" stroke="#23395b" stroke-width="3"/>
+      <rect x="20" y="9" width="14" height="9" rx="2" fill="#fbf5e6"/><rect x="40" y="9" width="14" height="9" rx="2" fill="#fbf5e6"/>
+      <rect x="60" y="9" width="14" height="9" rx="2" fill="#fbf5e6"/><rect x="80" y="9" width="14" height="9" rx="2" fill="#fbf5e6"/>
+      <path d="M100 8 Q114 10 114 16 L100 16Z" fill="#fbf5e6"/><rect x="10" y="22" width="100" height="3" fill="#e9b44c"/></svg>
+  </div>
+
+  <nav class="pavilions" aria-label="FRQ Funhouse games">
+    <a class="pav" href="reading-room/index.html" data-game="reading">
+      <div class="num">1</div>
+      <div class="art" style="background:#f0d9a8"><svg viewBox="0 0 200 140" aria-hidden="true">
+        <rect x="30" y="60" width="140" height="80" fill="#fbf5e6" stroke="#23395b" stroke-width="4"/>
+        <path d="M20 62 L100 18 L180 62Z" fill="#e86a58" stroke="#23395b" stroke-width="4"/>
+        <rect x="80" y="92" width="40" height="48" fill="#23395b"/>
+        <circle cx="100" cy="46" r="10" fill="#e9b44c" stroke="#23395b" stroke-width="3"/>
+        <text x="100" y="84" text-anchor="middle" font-family="Josefin Sans" font-weight="700" font-size="14" fill="#b3261e">POINT ✓</text></svg></div>
+      <h2>Point / No Point</h2><div class="tag">The Reading Room</div>
+      <p>You are the AP Reader. Stamp each answer POINT or NO POINT and say exactly why.</p>
+      <span class="go">ENTER PAVILION</span><div class="best" data-best="reading"></div>
+    </a>
+    <a class="pav" href="evidence-locker/index.html" data-game="evidence">
+      <div class="num">2</div>
+      <div class="art" style="background:#cfe3dc"><svg viewBox="0 0 200 140" aria-hidden="true">
+        <rect x="40" y="50" width="120" height="90" fill="#2f8f8a" stroke="#23395b" stroke-width="4"/>
+        <ellipse cx="100" cy="50" rx="66" ry="34" fill="#fbf5e6" stroke="#23395b" stroke-width="4"/>
+        <circle cx="100" cy="92" r="20" fill="#e9b44c" stroke="#23395b" stroke-width="4"/><circle cx="106" cy="86" r="7" fill="none" stroke="#23395b" stroke-width="4"/>
+        <line x1="111" y1="91" x2="122" y2="102" stroke="#23395b" stroke-width="5"/>
+        <rect x="60" y="120" width="80" height="20" fill="#23395b"/></svg></div>
+      <h2>Evidence Locker</h2><div class="tag">The Case-File Dome</div>
+      <p>Six sources, one device. Pin the exact log line that proves your claim, then build the answer.</p>
+      <span class="go">ENTER PAVILION</span><div class="best" data-best="evidence"></div>
+    </a>
+    <a class="pav" href="verb-lock/index.html" data-game="verb">
+      <div class="num">3</div>
+      <div class="art" style="background:#f6d49a"><svg viewBox="0 0 200 140" aria-hidden="true">
+        <g transform="translate(100,140)"><path d="M-90 0 A90 90 0 0 1 90 0Z" fill="#e86a58" stroke="#23395b" stroke-width="4"/>
+        <path d="M-64 0 A64 64 0 0 1 64 0Z" fill="#e9b44c" stroke="#23395b" stroke-width="4"/>
+        <path d="M-38 0 A38 38 0 0 1 38 0Z" fill="#2f8f8a" stroke="#23395b" stroke-width="4"/></g>
+        <rect x="70" y="16" width="60" height="30" rx="6" fill="#fbf5e6" stroke="#23395b" stroke-width="4"/>
+        <text x="100" y="37" text-anchor="middle" font-family="Josefin Sans" font-weight="700" font-size="14" fill="#23395b">VERB?</text>
+        <line x1="100" y1="46" x2="100" y2="80" stroke="#23395b" stroke-width="4"/></svg></div>
+      <h2>Verb Lock</h2><div class="tag">The Game-Show Bandstand</div>
+      <p>Identify, Describe, Determine, Explain, Write. Lock the verb, pick the answer that obeys it.</p>
+      <span class="go">ENTER PAVILION</span><div class="best" data-best="verb"></div>
+    </a>
+    <a class="pav" href="trap-door/index.html" data-game="trap">
+      <div class="num">4</div>
+      <div class="art" style="background:#e9d5b0"><svg viewBox="0 0 200 140" aria-hidden="true">
+        <path d="M30 140 L60 70 L140 70 L170 140Z" fill="#c0582f" stroke="#23395b" stroke-width="4"/>
+        <path d="M60 70 L80 30 L120 30 L140 70Z" fill="#e9b44c" stroke="#23395b" stroke-width="4"/>
+        <path d="M84 140 L84 102 A16 16 0 0 1 116 102 L116 140Z" fill="#23395b"/>
+        <path d="M100 8 L104 30 L96 30Z" fill="#2f8f8a" stroke="#23395b" stroke-width="3"/></svg></div>
+      <h2>Trap Door</h2><div class="tag">The Temple of Traps</div>
+      <p>Every room hides a classic point-killer. Pick the safe door through a full FRQ.</p>
+      <span class="go">ENTER PAVILION</span><div class="best" data-best="trap"></div>
+    </a>
+    <a class="pav" href="mission-clock/index.html" data-game="mission">
+      <div class="num">5</div>
+      <div class="art" style="background:#d6e2ea"><svg viewBox="0 0 200 140" aria-hidden="true">
+        <path d="M100 6 C124 30 128 70 122 112 L78 112 C72 70 76 30 100 6Z" fill="#fbf5e6" stroke="#23395b" stroke-width="4"/>
+        <circle cx="100" cy="54" r="12" fill="#2f8f8a" stroke="#23395b" stroke-width="4"/>
+        <path d="M78 92 L56 124 L80 116Z M122 92 L144 124 L120 116Z" fill="#e86a58" stroke="#23395b" stroke-width="4"/>
+        <path d="M86 114 L100 140 L114 114Z" fill="#e9b44c" stroke="#23395b" stroke-width="3"/></svg></div>
+      <h2>Mission Clock</h2><div class="tag">The Space Pavilion</div>
+      <p>The full 50-minute FRQ with a pacing coach, a launch checklist, and a PDF report.</p>
+      <span class="go">ENTER PAVILION</span><div class="best" data-best="mission"></div>
+    </a>
+  </nav>
+</main>
+<div class="lawn" aria-hidden="true"></div>
+
+<section class="lower">
+  <div class="ticket">
+    <h3>Admit One: The Five Task Verbs</h3>
+    <div class="verb"><b>Identify</b><span>Name the concept or the specific piece of evidence. One answer, no hedging.</span></div>
+    <div class="verb"><b>Describe</b><span>Tell what the process or outcome is, using details from the sources.</span></div>
+    <div class="verb"><b>Determine</b><span>Apply a rule to the sources and land on one specific result.</span></div>
+    <div class="verb ex"><b>Explain</b><span>Give the <em>reason</em> and the <em>evidence</em>. Naming it is not explaining it.</span></div>
+    <div class="verb"><b>Write</b><span>Type a command with correct syntax that does exactly what was asked.</span></div>
+  </div>
+  <div class="tips">
+    <h3>Midway Rules</h3>
+    <ul>
+      <li>Cite it: line number, rule number, file name, IP address.</li>
+      <li>One answer only. Two answers with one wrong earns zero.</li>
+      <li>Read the "Other than…" clause. It bans the easy answer.</li>
+      <li>"Modify a rule" means change an existing one, not add a new one.</li>
+      <li>Never leave a later part blank. Each part is scored on its own.</li>
+      <li>Pacing: 3 min read, 7 min skim, 35 min answer, 5 min review.</li>
+    </ul>
+  </div>
+</section>
+<footer>WCTA Cybersecurity · Practice cases are original and fictional, modeled on the College Board Device Security Analysis format. Progress is saved only in this browser.</footer>
+
+<script>
+(function(){
+  const train=document.getElementById('train');
+  const ground=document.querySelector('.ground');
+  function moveTo(el){
+    const g=ground.getBoundingClientRect(), r=el.getBoundingClientRect();
+    train.style.left=((r.left+r.width/2)-g.left)+'px';
+  }
+  const pavs=[...document.querySelectorAll('.pav')];
+  pavs.forEach(p=>{p.addEventListener('mouseenter',()=>moveTo(p));p.addEventListener('focus',()=>moveTo(p));});
+  window.addEventListener('load',()=>moveTo(pavs[0]));
+  window.addEventListener('resize',()=>moveTo(pavs[0]));
+  let best={};try{best=JSON.parse(localStorage.getItem('frqfh_best')||'{}');}catch(e){}
+  document.querySelectorAll('[data-best]').forEach(el=>{
+    const v=best[el.dataset.best]; if(v!=null) el.textContent='★ Your best: '+v+'%';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trap Door · The Temple of Traps</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=EB+Garamond:wght@400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--parch:#efe0bd;--parch2:#e3cf9f;--ink:#2e2418;--jade:#2f7d6b;--terra:#c0582f;--gold:#c99a2e;--stone:#6d6253}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'EB Garamond',serif;color:var(--ink);min-height:100vh;font-size:18px;
+  background:radial-gradient(ellipse at center,var(--parch) 40%,var(--parch2) 100%)}
+a.back{position:fixed;top:12px;left:16px;color:var(--terra);font-family:'Cinzel';font-weight:600;text-decoration:none;font-size:14px;z-index:5}
+.wrap{max-width:1000px;margin:0 auto;padding:46px 22px 40px}
+h1{font-family:'Cinzel';font-weight:800;font-size:56px;text-align:center;letter-spacing:.06em;color:var(--ink)}
+h1 small{display:block;font-size:18px;letter-spacing:.3em;color:var(--terra)}
+.orn{text-align:center;color:var(--gold);letter-spacing:.5em;margin:6px 0 16px}
+.map{display:flex;align-items:center;justify-content:space-between;margin:10px 0 18px;position:relative}
+.map:before{content:'';position:absolute;left:12px;right:12px;top:50%;border-top:3px dashed var(--stone)}
+.node{position:relative;width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);background:var(--parch);font:600 13px 'Cinzel';display:flex;align-items:center;justify-content:center}
+.node.done{background:var(--jade);color:#fff}.node.fell{background:var(--terra);color:#fff}.node.here{background:var(--gold);transform:scale(1.25)}
+.status{display:flex;justify-content:space-between;font-family:'Cinzel';font-weight:600;font-size:15px;margin-bottom:8px}
+.torch{color:var(--terra)}
+.room{background:#f7ecd2;border:3px solid var(--ink);border-radius:6px;padding:22px 26px;box-shadow:6px 6px 0 var(--stone);position:relative}
+.room:before,.room:after{content:'❖';position:absolute;top:6px;color:var(--gold)}.room:before{left:10px}.room:after{right:10px}
+.rl{font-family:'Cinzel';font-weight:800;color:var(--jade);letter-spacing:.08em}
+.pr{font-size:19px;line-height:1.5;margin:6px 0 10px}
+.ctx{font-family:'IBM Plex Mono';font-size:13.5px;background:#eadbb5;padding:9px 12px;border-left:4px solid var(--gold);white-space:pre-wrap;margin-bottom:12px}
+.doors{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px;perspective:900px}
+.door{position:relative;min-height:250px;cursor:pointer;border:0;background:none;text-align:left;font:inherit;color:inherit}
+.door .frame{position:absolute;inset:0;border:4px solid var(--ink);border-radius:120px 120px 4px 4px;background:var(--stone);overflow:hidden}
+.door .behind{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;font-family:'Cinzel';font-weight:800;font-size:20px;color:#fff}
+.door .leaf{position:absolute;inset:0;background:linear-gradient(90deg,#8a5a34,#a8703f 50%,#8a5a34);border-radius:116px 116px 0 0;transform-origin:left center;transition:transform .7s;
+  padding:52px 16px 16px;font-size:16px;line-height:1.35;color:#fdf3dc;display:flex;align-items:center;box-shadow:inset 0 0 0 3px #6b4425}
+.door .leaf:after{content:'';position:absolute;right:16px;top:55%;width:10px;height:10px;border-radius:50%;background:var(--gold)}
+.door .num{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-family:'Cinzel';font-weight:800;color:var(--gold);z-index:2}
+.door:hover .leaf{filter:brightness(1.1)}
+.door.open .leaf{transform:rotateY(-105deg)}
+.door.safe .frame{background:var(--jade)}.door.trap .frame{background:var(--terra)}
+.door[disabled]{cursor:default}
+.lore{margin-top:18px;padding:14px 18px;border:2px solid var(--ink);background:#fbf3df;display:none;line-height:1.5}
+.lore.show{display:block}.lore h3{font-family:'Cinzel';font-size:20px}
+.btn{font-family:'Cinzel';font-weight:800;font-size:17px;letter-spacing:.08em;padding:11px 24px;border:3px solid var(--ink);background:var(--gold);cursor:pointer;margin-top:12px}
+.btn:hover{background:var(--jade);color:#fff}
+.center{text-align:center}
+.scroll{background:#f7ecd2;border:3px solid var(--ink);padding:24px 30px;margin-top:10px}
+table.rep{width:100%;border-collapse:collapse;margin-top:10px;font-size:16px}
+table.rep td,table.rep th{border-bottom:1px solid #cdb98a;padding:6px;text-align:left}
+input[type=text]{font:18px 'EB Garamond';padding:6px 10px;border:2px solid var(--ink);background:#fbf3df}
+@media print{body{background:#fff}.back,.noprint{display:none!important}}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">← Back to the FRQ Funhouse</a>
+<div class="wrap" id="app"></div>
+<script src="../shared/common.js"></script>
+<script>
+const CASE='MEDVAULT-01 (Riverside Family Clinic) · device IP 10.20.0.15';
+const ROOMS=[
+{l:'A (ii) · Explain',p:'Explain how one rule in the current policy could be modified to make the device more secure. Include a specific example.',c:'Source 6, item 3: Operating system updates are installed manually by users when prompted.',
+ d:[{t:'Change item 3 so updates install automatically every week. Patches would be applied without waiting on users, closing known vulnerabilities faster.',safe:1},
+    {t:'Add a new rule that every computer must run antivirus software.',trap:'The "Add" Trap',why:'The prompt says MODIFY a rule in the current policy. A brand-new rule earns nothing.'},
+    {t:'Item 3 is weak and should be made better.',trap:'The Hollow Claim',why:'No specific change and no explanation. "Include a specific example" was in the prompt.'}]},
+{l:'B (i) · Describe',p:'Describe evidence of a password attack in the authentication log. Include specific entries.',c:'Source 2 lines 4–13: FAIL LOGIN from "198.51.100.77" for admin, root, backup … test (08:14:30–08:14:35)\nSource 2 line 14: Accepted password for rkhan from 10.20.0.31',
+ d:[{t:'Many logins failed, which shows a brute-force password attack.',trap:'The Fog of Vagueness',why:'No entries, no lines, no IP. The prompt demanded specific entries.'},
+    {t:'Lines 4–13 show ten failed FTP logins from 198.51.100.77, each for a different username, within five seconds.',safe:1},
+    {t:'Line 14 shows rkhan logging in from 10.20.0.31, which is the attack.',trap:'The False Clue',why:'Line 14 is a normal successful login. Describing normal activity as the attack earns nothing.'}]},
+{l:'B (ii) · Identify',p:'Identify the IP address of the adversary in the password attack.',c:'Every FAIL LOGIN line lists Client "198.51.100.77".',
+ d:[{t:'198.51.100.77 or maybe 10.20.0.31',trap:'The Hedge Pit',why:'Two answers where one is wrong scores zero. Commit to one.'},
+    {t:'100.77',trap:'The Broken Address',why:'A partial IP is not the IP. Readers rejected "113.25"-style answers in the official guidelines.'},
+    {t:'198.51.100.77',safe:1}]},
+{l:'C (i) · Explain',p:'Explain how the permission settings for one file determine access for the owner, the group, and all other users. Include the file name.',c:'Source 5: -rwxr-x---  tlee  admins  backup.sh',
+ d:[{t:'For backup.sh (rwxr-x---), owner tlee can read, write and execute; the admins group can read and execute; all other users have no access.',safe:1},
+    {t:'The owner can read, write and execute, and the group can read and execute.',trap:'The Nameless File',why:'No file name and "others" is skipped. Both are required.'},
+    {t:'For backup.sh, everyone on the system can run it.',trap:'The Misread Glyph',why:'Others have --- (nothing). Misreading the bits is an automatic miss.'}]},
+{l:'C (ii) · Describe',p:'Other than removing all permissions from all users, describe one way to restrict access to one file. Include the file name.',c:'Source 5: -rw-rw-rw-  clinic  staff  patients.csv',
+ d:[{t:'Remove all permissions on patients.csv so no one can open it.',trap:'The "Other Than" Snare',why:'The prompt bans this exact answer in its first five words.'},
+    {t:'Remove execute permission from patients.csv for everyone.',trap:'The Phantom Permission',why:'patients.csv has no execute bits (rw-rw-rw-). You must remove a permission it currently HAS.'},
+    {t:'Remove read and write for others on patients.csv so only the clinic owner and the staff group can use the patient records.',safe:1}]},
+{l:'C (iii) · Strategy',p:'You are not sure your C (ii) answer was right. What do you do with C (iii) ("write the chmod command for your C (ii) change")?',c:'Each subpart is scored separately.',
+ d:[{t:'Leave C (iii) blank. If C (ii) is wrong, C (iii) can\'t earn anything anyway.',trap:'The Empty Chamber',why:'False. C (iii) earns its point if the command correctly sets what you described, even when C (ii) missed.'},
+    {t:'Write a correct chmod command that matches what you described in C (ii).',safe:1},
+    {t:'Write a command for a different, safer change than the one you described.',trap:'The Mismatch',why:'C (iii) must match YOUR C (ii). A different change, even a good one, does not earn the point.'}]},
+{l:'C (iii) · Write',p:'Write a chmod command that removes read and write for others on patients.csv.',c:'Current: -rw-rw-rw-  patients.csv',
+ d:[{t:'chmod -rw-rw---- patients.csv',trap:'The Scrambled Incantation',why:'chmod doesn\'t accept a full permission string. Use 660 or o-rw.'},
+    {t:'chmod o-rw patients.csv',safe:1},
+    {t:'chmod 777 patients.csv',trap:'The Open Gate',why:'777 gives EVERYONE everything, the opposite of what was described.'}]},
+{l:'D (i) · Explain',p:'Explain how one connection attempt was blocked by the device\'s firewall. Include evidence from a log file.',c:'Source 3 line 1: [UFW ALLOW] SRC=10.20.0.22 DPT=443\nSource 3 line 6: [UFW BLOCK] SRC=10.20.0.31 DPT=8443\nSource 1 rule 7: Deny ALL ALL',
+ d:[{t:'Source 3 line 6 shows a BLOCK from 10.20.0.31.',trap:'The Silent Witness',why:'Names the evidence but never explains HOW it was blocked (which rule and why).'},
+    {t:'Source 3 line 6 shows a blocked connection from 10.20.0.31 to port 8443. No rule allows 8443, so the traffic reaches rule 7, which denies all other inbound traffic.',safe:1},
+    {t:'The connection from 10.20.0.22 on line 1 was blocked by rule 7.',trap:'The Misread Glyph',why:'Line 1 says ALLOW. Read the action field before you cite it.'}]},
+{l:'D (ii) · Describe',p:'Other than allowing all traffic for all services, describe a modification to ONE firewall rule that would allow the connection in D (i).',c:'D (i): 10.20.0.31 blocked on port 8443.\nRule 4: Allow ALL → port 80 HTTP · Rule 7: Deny ALL (last)',
+ d:[{t:'Turn the firewall off so the connection goes through.',trap:'The "Other Than" Snare',why:'Disabling the firewall IS allowing all traffic. Banned by the prompt.'},
+    {t:'Add a new rule 8: Allow 10.20.0.31 on port 8443.',trap:'The Unreachable Rule',why:'Two traps in one: it adds instead of modifies, and a rule placed after the deny-all at rule 7 would never be reached.'},
+    {t:'Change rule 4\'s port from 80 to 8443.',safe:1}]},
+{l:'D (iii) · Describe',p:'Other than allowing the connection from D (i), describe one impact of your D (ii) change (rule 4: port 80 → 8443).',c:'After the change, port 80 has no allow rule.',
+ d:[{t:'Plain-HTTP traffic on port 80 would now fall to rule 7 and be blocked, so anyone using http:// to reach the portal loses access.',safe:1},
+    {t:'It would let 10.20.0.31 connect on port 8443.',trap:'The Echo Chamber',why:'"Other than allowing the connection…" Repeating it earns nothing.'},
+    {t:'It would stop all attackers from reaching the device.',trap:'The Grand Promise',why:'Not an accurate impact. Readers rejected "it would block all adversaries."'}]},
+{l:'E (i) · Determine',p:'Apart from the password attack, determine the type of attack evidenced in a log file.',c:'Source 4 line 5: GET /portal/search?patient=\' OR \'1\'=\'1\' --\nSource 4 line 6: … UNION SELECT username,password FROM users --',
+ d:[{t:'SQL injection and cross-site scripting',trap:'The Hedge Pit',why:'One of the two is wrong, so the whole answer scores zero.'},
+    {t:'SQL injection',safe:1},
+    {t:'Brute-force attack',trap:'The Wrong Idol',why:'That is the Part B password attack. The prompt said "apart from" it.'}]},
+{l:'E (iv) · Identify',p:'This attack could be mitigated by an automated system such as a firewall, IDS, IPS, or AI. Identify a different countermeasure.',c:'Attack: SQL injection in the patient search field.',
+ d:[{t:'An intrusion prevention system (IPS).',trap:'The "Already Named" Snare',why:'The prompt listed IPS. "Different" means not one of those.'},
+    {t:'A stronger password policy.',trap:'The Wrong Key',why:'Passwords don\'t stop SQL injection. The countermeasure must fit THIS attack.'},
+    {t:'Use parameterized queries and sanitize input in the search form.',safe:1}]}
+];
+const app=document.getElementById('app'); let S;
+function title(){
+  app.innerHTML=`<h1><small>THE TEMPLE OF</small>TRAP DOOR</h1><div class="orn">✦ ✦ ✦</div>
+  <div class="scroll"><p>Twelve chambers stand between you and the Fourteen Points. Each chamber is one part of a real-style FRQ for <b>${CASE}</b>.</p>
+  <p style="margin-top:10px">Three doors per chamber. One leads on. Two hide the classic traps that cost students points every year: the hedge, the "Other than" snare, the add-instead-of-modify, the missing file name, the empty chamber.</p>
+  <p style="margin-top:10px">You carry <b>three torches</b>. Each trap snuffs one. Lose all three and the temple sends you back to study.</p>
+  <p style="margin-top:14px">Explorer name: <input type="text" id="nm" placeholder="optional"></p>
+  <p class="center"><button class="btn" onclick="start()">ENTER THE TEMPLE</button></p></div>`;
+}
+function start(){S={name:(document.getElementById('nm').value||'').trim(),i:0,torch:3,res:[],traps:[]};room();}
+function room(){
+  const r=ROOMS[S.i]; const doors=FH.shuffle(r.d);
+  app.innerHTML=`<div class="status"><span>CHAMBER ${S.i+1} OF ${ROOMS.length}</span><span class="torch">${'🔥'.repeat(S.torch)}${'·'.repeat(3-S.torch)}</span></div>
+  <div class="map">${ROOMS.map((_,i)=>`<div class="node ${i<S.i?(S.res[i]?'done':'fell'):i===S.i?'here':''}">${i+1}</div>`).join('')}</div>
+  <div class="room"><div class="rl">PART ${r.l}</div><div class="pr">${FH.esc(r.p)}</div><div class="ctx">${FH.esc(r.c)}</div>
+  <div class="doors">${doors.map((d,i)=>`<button class="door" data-i="${i}"><div class="frame"><div class="behind">${d.safe?'SAFE PASSAGE ✦':'TRAP!<br><span style="font-size:15px">'+FH.esc(d.trap)+'</span>'}</div></div><div class="num">${['I','II','III'][i]}</div><div class="leaf">${FH.esc(d.t)}</div></button>`).join('')}</div>
+  <div class="lore" id="lore"></div></div>`;
+  document.querySelectorAll('.door').forEach(b=>b.onclick=()=>choose(b,doors));
+}
+function choose(b,doors){
+  if(S.locked) return; S.locked=true;
+  const d=doors[+b.dataset.i]; b.classList.add('open',d.safe?'safe':'trap');
+  document.querySelectorAll('.door').forEach(x=>x.disabled=true);
+  const safe=doors.find(x=>x.safe);
+  S.res[S.i]=!!d.safe; if(!d.safe){S.torch--;S.traps.push(d.trap);}
+  const L=document.getElementById('lore'); L.classList.add('show');
+  const last=S.i===ROOMS.length-1, dead=S.torch<=0;
+  L.innerHTML=d.safe?`<h3 style="color:var(--jade)">Safe passage.</h3><p>${FH.esc(ROOMS[S.i].l.includes('Strategy')?'Each part is scored on its own. Never leave it blank.':'This answer does exactly what the verb and the prompt ask.')}</p>`
+   :`<h3 style="color:var(--terra)">You triggered ${FH.esc(d.trap)}!</h3><p>${FH.esc(d.why)}</p><p><b>The safe door:</b> ${FH.esc(safe.t)}</p>`;
+  L.innerHTML+=`<button class="btn" onclick="go()">${dead?'THE TORCHES ARE OUT →':last?'CLAIM THE FOURTEEN POINTS →':'NEXT CHAMBER →'}</button>`;
+  setTimeout(()=>L.scrollIntoView({behavior:'smooth',block:'nearest'}),300);
+}
+function go(){S.locked=false; if(S.torch<=0||S.i===ROOMS.length-1) return end(); S.i++; room(); window.scrollTo(0,0);}
+function end(){
+  const cleared=S.res.filter(Boolean).length; const pct=Math.round(cleared/ROOMS.length*100);
+  const won=S.torch>0; if(won) FH.saveBest('trap',pct);
+  app.innerHTML=`<h1 style="font-size:44px">${won?'<small>YOU ESCAPED</small>THE TEMPLE':'<small>THE TORCHES ARE OUT</small>RETURN TO STUDY'}</h1><div class="orn">✦ ${S.name?FH.esc(S.name)+' · ':''}${FH.today()} ✦</div>
+  <div class="scroll"><p style="font-family:Cinzel;font-size:40px;font-weight:800;color:var(--jade)" class="center">${cleared} / ${S.i+1} chambers cleared</p>
+  ${won?'':`<p class="center">You made it to chamber ${S.i+1} of ${ROOMS.length}.</p>`}
+  <h3 style="font-family:Cinzel;margin-top:14px">Traps that caught you</h3>
+  ${S.traps.length?'<ul style="margin:6px 0 0 24px">'+S.traps.map(t=>`<li>${FH.esc(t)}</li>`).join('')+'</ul>':'<p>None. Not a single trap. The Readers bow to you.</p>'}
+  <table class="rep"><tr><th>#</th><th>Part</th><th>Result</th></tr>${S.res.map((r,i)=>`<tr><td>${i+1}</td><td>${FH.esc(ROOMS[i].l)}</td><td>${r?'Safe':'Trap'}</td></tr>`).join('')}</table>
+  <p class="center noprint"><button class="btn" onclick="window.print()">SAVE AS PDF</button> <button class="btn" onclick="title()">${won?'RUN IT AGAIN':'TRY AGAIN'}</button></p></div>`;
+}
+title();
+</script>
+</body>
+</html>

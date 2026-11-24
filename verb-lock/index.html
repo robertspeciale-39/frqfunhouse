@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verb Lock · Sunburst Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Rubik:wght@400;600;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#e8641b;--mustard:#f2b134;--teal:#1f8a8a;--brown:#5a3520;--cream:#fdf1d6;--dark:#2e1a10}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Rubik',sans-serif;color:var(--dark);min-height:100vh;
+  background:repeating-conic-gradient(from 0deg at 50% 100%,var(--orange) 0 8deg,var(--mustard) 8deg 16deg,#f08a2c 16deg 24deg)}
+a.back{position:fixed;top:12px;left:16px;color:var(--cream);font-weight:800;text-decoration:none;font-size:14px;text-shadow:1px 1px 0 var(--brown);z-index:5}
+.stage{max-width:960px;margin:40px auto;padding:0 18px}
+.marquee{background:var(--brown);border-radius:28px;padding:14px;position:relative;box-shadow:0 10px 0 #3a2213,0 20px 40px #0005}
+.marquee:before{content:'';position:absolute;inset:5px;border-radius:24px;pointer-events:none;
+  background:radial-gradient(circle,#fff6c4 0 3px,transparent 4px) 0 0/22px 22px;opacity:.9;animation:chase 1s steps(2) infinite;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:8px}
+@keyframes chase{50%{background-position:11px 0}}
+.screen{background:var(--cream);border-radius:18px;padding:28px 30px;min-height:470px;position:relative;z-index:1}
+h1{font-family:'Righteous';font-size:72px;color:var(--orange);text-shadow:4px 4px 0 var(--teal),8px 8px 0 var(--brown);line-height:1;text-align:center}
+.tagline{text-align:center;font-weight:800;color:var(--teal);letter-spacing:.2em;margin:12px 0 18px}
+.hud{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pill{background:var(--brown);color:var(--cream);border-radius:30px;padding:7px 16px;font-weight:800;font-size:15px}
+.pill b{color:var(--mustard)}
+.timer{height:10px;background:#e8d6ae;border-radius:6px;overflow:hidden;margin-bottom:16px}
+.timer i{display:block;height:100%;background:var(--teal);transition:width .25s linear}
+.cat{font-family:'Righteous';font-size:18px;color:var(--teal);letter-spacing:.1em}
+.prompt{font-size:20px;line-height:1.45;font-weight:600;margin:6px 0 10px}
+.prompt .vb{background:var(--mustard);padding:0 6px;border-radius:6px;font-weight:800}
+.snip{font-family:'IBM Plex Mono';font-size:13.5px;background:#f3e2bb;border-radius:10px;padding:10px 12px;margin-bottom:14px;white-space:pre-wrap}
+.q{font-family:'Righteous';font-size:20px;margin:6px 0 8px;color:var(--brown)}
+.opt{display:block;width:100%;text-align:left;font:600 16px/1.4 'Rubik';padding:13px 16px;margin:8px 0;border:4px solid var(--brown);border-radius:16px;background:#fff;cursor:pointer;box-shadow:0 5px 0 var(--brown);transition:transform .08s}
+.opt:hover{transform:translateY(-2px);background:#fff8e6}
+.opt:active{transform:translateY(3px);box-shadow:0 2px 0 var(--brown)}
+.opt.right{background:#c9ecd9;border-color:#1b6b4b;box-shadow:0 5px 0 #1b6b4b}.opt.wrong{background:#f8cfc0;border-color:#a3341a;box-shadow:0 5px 0 #a3341a}
+.opt[disabled]{cursor:default}
+.req{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.feedback{margin-top:14px;border-radius:14px;padding:12px 16px;background:var(--brown);color:var(--cream);font-size:15.5px;line-height:1.45;display:none}
+.feedback.show{display:block}.feedback b{color:var(--mustard)}
+.big{font-family:'Righteous';font-size:22px}
+.btn{font-family:'Righteous';font-size:22px;letter-spacing:.06em;padding:12px 30px;border:0;border-radius:40px;background:var(--orange);color:#fff;cursor:pointer;box-shadow:0 6px 0 var(--brown)}
+.btn:hover{background:var(--teal)}
+.btn.alt{background:var(--teal)}
+.center{text-align:center}
+input.cmd{font-family:'IBM Plex Mono';font-size:20px;width:100%;padding:12px 14px;border:4px solid var(--brown);border-radius:14px;background:#2e1a10;color:#f9d77e}
+.rules{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}
+.rules div{background:#fff;border:3px solid var(--brown);border-radius:12px;padding:8px;font-size:13px;text-align:center}
+.rules b{display:block;font-family:'Righteous';font-size:17px;color:var(--orange)}
+.combo{position:absolute;right:30px;top:96px;font-family:'Righteous';font-size:28px;color:var(--orange);transform:rotate(8deg)}
+table.rep{width:100%;border-collapse:collapse;margin-top:12px;font-size:14.5px}
+table.rep td,table.rep th{border-bottom:2px solid #ead7ac;padding:6px;text-align:left}
+input[type=text].nm{font:600 17px 'Rubik';padding:8px 12px;border:3px solid var(--brown);border-radius:12px}
+@media print{body{background:#fff}.back,.noprint{display:none!important}.marquee{box-shadow:none;background:#fff;padding:0}.marquee:before{display:none}}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">← Back to the FRQ Funhouse</a>
+<div class="stage"><div class="marquee"><div class="screen" id="app"></div></div></div>
+<script src="../shared/common.js"></script>
+<script>
+const VERBS={
+ Identify:'Name it: one concept or one specific piece of evidence',
+ Describe:'Lay out the process or outcome with source details',
+ Determine:'Apply criteria to the sources and land on one specific result',
+ Explain:'Give the reason AND back it with specific evidence',
+ Write:'Produce a correctly formatted command with the exact effect'
+};
+const PICKS=[
+{v:'Identify',p:'Identify the port number the blocked connection in Source 3 line 4 was trying to reach.',s:'Source 3 line 4: [UFW BLOCK] SRC=198.51.100.77 DST=10.20.0.15 PROTO=TCP DPT=23',o:['23','23 and 21','Telnet ports are dangerous and should be closed.'],w:'Identify wants one specific item. "23 and 21" is a hedge (21 was allowed), and the third answer never names a port.'},
+{v:'Describe',p:'Describe one impact on users of changing firewall rule 3 (FTP, port 21) from Allow to Deny.',s:'Source 1 rule 3: Allow · ALL → 10.20.0.15 · Inbound · 21 · FTP',o:['Staff who send files over FTP from outside could no longer connect on port 21, because that traffic would now be denied.','Rule 3 is the FTP rule for port 21.','It would make the server more secure.'],w:'Describe needs the actual outcome. Option 2 only identifies the rule; option 3 is too vague to score.'},
+{v:'Explain',p:'Explain why the deny-all rule (rule 7) is placed last in the firewall rules.',s:'Rules are evaluated top to bottom; the first match wins.',o:['Rules are checked top to bottom and the first match wins, so a deny-all at the top would block everything. Placing it last means traffic only hits it when no allow rule matched.','Rule 7 denies all inbound traffic on all ports.','Because it is the deny rule.'],w:'Explain needs the REASON. Option 2 describes the rule; option 3 is circular.'},
+{v:'Determine',p:'Using Source 1, determine whether an SSH connection from 172.20.1.9 to the device would be allowed.',s:'Rule 2: Allow · 10.20.0.0/24 · port 22 SSH\nRule 7: Deny · ALL · ALL',o:['Blocked: 172.20.1.9 is not in 10.20.0.0/24, so rule 2 does not match and the traffic reaches rule 7.','Allowed, because rule 2 allows SSH.','SSH uses port 22.'],w:'Determine = apply the criteria (the source range) and give a result. Option 2 skips the source-range check.'},
+{v:'Identify',p:'Identify the user account the attacker tried first in Source 2.',s:'Source 2 line 4: FAIL LOGIN: Client "198.51.100.77", user "admin"\nline 5: … user "root"',o:['admin','admin or root','The attacker tried a lot of different users.'],w:'One name. "admin or root" is a hedge, and option 3 never identifies an account.'},
+{v:'Explain',p:'Explain how the permissions on export.sh create a risk for the device.',s:'Source 5: -rwxrwxrwx  rkhan  staff  export.sh',o:['Others have read, write and execute (the last rwx), so any user on the system could add malicious commands to export.sh and then run it.','export.sh has rwxrwxrwx permissions.','777 is bad.'],w:'Explain must connect the bits (others = rwx) to the risk. The other two never give a reason.'},
+{v:'Describe',p:'Describe the evidence that the SQL injection returned more data than a normal search.',s:'Line 3: GET /portal/search?patient=smith … 200 2210\nLine 5: GET /portal/search?patient=\' OR \'1\'=\'1\' -- … 200 88412',o:['Line 5 returned 88,412 bytes, compared with 2,210 bytes for the normal search on line 3.','The attacker used SQL in the search box.','The server answered with 200 OK.'],w:'Describe the evidence itself, with detail. The response sizes are the evidence asked for.'},
+{v:'Determine',p:'Determine which firewall rule allowed the connection in Source 3 line 5 (192.0.2.66 to port 80).',s:'Rule 1: Allow ALL 443 · Rule 4: Allow ALL 80 · Rule 7: Deny ALL',o:['Rule 4','Rule 1 and rule 4','Rule 7'],w:'One specific result from applying the rules: port 80 first matches rule 4.'},
+{v:'Explain',p:'Explain how an IDS would respond differently from an IPS to the attack in Source 4.',s:'Source 4 lines 5–6: SQL injection from 192.0.2.66',o:['An IDS only sends an alert, so the injection keeps running until a person responds; an IPS sits inline and can drop the malicious requests from 192.0.2.66 itself.','An IDS is for detection and an IPS is for prevention.','Both would stop the attack.'],w:'Option 2 is a definition, not an explanation of the difference in THIS situation. Option 3 is wrong.'},
+{v:'Identify',p:'Identify one file in Source 5 that only its owner can access.',s:'-rw------- tlee api.key · -rwxr-x--- tlee backup.sh · -rw-rw-rw- clinic patients.csv',o:['api.key','api.key and backup.sh','patients.csv'],w:'Only api.key has no group or other bits. Listing backup.sh too (group has r-x) makes it a hedge.'},
+{v:'Describe',p:'Describe what Source 2 line 12 tells you about the password attack on LAKESHORE-WEB.',s:'Line 12: Disconnected from 203.0.113.50 port 40126 [preauth]',o:['203.0.113.50 disconnected before authenticating ([preauth]), so none of the guesses on lines 3–11 succeeded in logging in.','It is a disconnect message.','The attacker got into the server.'],w:'Describe the outcome with the detail that proves it. Option 3 contradicts the log.'},
+{v:'Explain',p:'Explain why the firewall did not stop the password attack on LAKESHORE-WEB.',s:'Source 3 line 1: [UFW ALLOW] SRC=203.0.113.50 DPT=22\nSource 1 rule 3: Allow · ALL · 22 · SSH',o:['Rule 3 allows SSH from ALL sources, so 203.0.113.50 could reach port 22 (Source 3 line 1 shows ALLOW) and keep guessing passwords.','Source 3 line 1 is an ALLOW entry.','The firewall blocked the attack.'],w:'Explain = rule + log evidence + why. Option 2 names the evidence without a reason.'},
+{v:'Determine',p:'Using Source 1 for LAKESHORE-WEB, determine whether SMB traffic from 198.51.100.140 would be allowed.',s:'Rule 4: Allow · 172.16.5.0/24 · 445 SMB\nRule 7: Deny · ALL · ALL',o:['Blocked: rule 4 only allows SMB from 172.16.5.0/24, so the traffic falls to rule 7.','Allowed by rule 4.','SMB uses port 445.'],w:'Apply the source-range criterion and give the result.'},
+{v:'Describe',p:'Describe how a directory traversal attempt would appear in a web log.',s:'(Concept check: no source needed)',o:['The request path would contain ../ sequences trying to climb out of the web root, such as GET /files?doc=../../../etc/passwd.','It would be an attack on directories.','There would be a lot of requests.'],w:'Describe the actual indicator with a concrete detail.'}
+];
+const WRITES=[
+{f:'report.txt',from:'rw-r--r--',to:'rw-------',d:'Remove read access for the group and others.'},
+{f:'deploy.sh',from:'rwxrwxrwx',to:'rwxr-xr-x',d:'Remove write access for the group and others.'},
+{f:'patients.csv',from:'rw-rw-rw-',to:'rw-rw----',d:'Remove all access for others (keep owner and group as they are).'},
+{f:'backup.sh',from:'rwxr-x---',to:'rwxr-----',d:'Remove execute permission from the group.'},
+{f:'notes.md',from:'rw-------',to:'rw-r-----',d:'Give the group read access.'},
+{f:'run.sh',from:'rw-r--r--',to:'rwxr--r--',d:'Let the owner execute the file.'}
+];
+const app=document.getElementById('app'); let S,TT;
+let actx=null;
+function beep(ok){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.type=ok?'triangle':'sawtooth';o.frequency.value=ok?880:140;g.gain.value=.08;o.connect(g);g.connect(actx.destination);o.start();o.frequency.exponentialRampToValueAtTime(ok?1320:90,actx.currentTime+.25);o.stop(actx.currentTime+.3);}catch(e){}}
+function title(){
+  clearInterval(TT);
+  app.innerHTML=`<h1>VERB LOCK</h1><div class="tagline">THE TASK-VERB GAME SHOW</div>
+  <p class="center" style="font-size:17px">Every FRQ part hides one command word. Lock the verb, then pick the answer that actually obeys it. Speed and streaks pay extra.</p>
+  <div class="rules">${Object.keys(VERBS).map(k=>`<div><b>${k}</b>${VERBS[k]}</div>`).join('')}</div>
+  <p class="center">Contestant name: <input class="nm" type="text" id="nm" placeholder="optional"></p>
+  <p class="center" style="margin-top:18px"><button class="btn" onclick="start()">START THE SHOW</button></p>`;
+}
+function start(){
+  const rounds=FH.shuffle(PICKS).slice(0,9).map(r=>({t:'pick',r})).concat(FH.shuffle(WRITES).slice(0,3).map(r=>({t:'write',r})));
+  S={name:(document.getElementById('nm').value||'').trim(),rounds:FH.shuffle(rounds),i:0,score:0,streak:0,bestStreak:0,right:0,total:0,log:[]};
+  round();
+}
+function hud(){return `<div class="hud"><span class="pill">ROUND <b>${S.i+1}</b> / ${S.rounds.length}</span><span class="pill">STREAK <b>${S.streak}</b></span><span class="pill">SCORE <b>${S.score}</b></span></div><div class="timer"><i id="bar" style="width:100%"></i></div>`}
+function startTimer(sec,onOut){clearInterval(TT);S.left=sec;S.sec=sec;TT=setInterval(()=>{S.left-=.25;const b=document.getElementById('bar');if(b)b.style.width=Math.max(0,S.left/S.sec*100)+'%';if(S.left<=0){clearInterval(TT);onOut();}},250);}
+function mult(){return Math.min(2,1+S.streak*.25)}
+function hit(base){const pts=Math.round((base+Math.max(0,S.left)*4)*mult());S.score+=pts;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);S.right++;beep(true);return pts;}
+function miss(){S.streak=0;beep(false);}
+function round(){
+  const R=S.rounds[S.i]; S.total+=R.t==='pick'?2:1;
+  if(R.t==='write') return writeRound(R.r);
+  const r=R.r; const verbRe=new RegExp('\\b('+r.v+')\\b','i');
+  app.innerHTML=hud()+`<div class="cat">STEP 1 · LOCK THE VERB</div>
+  <div class="prompt">${FH.esc(r.p).replace(verbRe,'<span class="vb">$1</span>')}</div><div class="snip">${FH.esc(r.s)}</div>
+  <div class="q">"${r.v}" means the answer must…</div><div class="req" id="req">${FH.shuffle(Object.keys(VERBS)).map(k=>`<button class="opt" data-k="${k}">${VERBS[k]}</button>`).join('')}</div><div class="feedback" id="fb"></div>`;
+  const ent={part:r.v+': '+r.p.slice(0,60)+'…',lock:0,ans:0};S.log.push(ent);
+  startTimer(15,()=>lockDone(null));
+  document.querySelectorAll('#req .opt').forEach(b=>b.onclick=()=>lockDone(b));
+  function lockDone(b){
+    clearInterval(TT); document.querySelectorAll('#req .opt').forEach(x=>{x.disabled=true;if(x.dataset.k===r.v)x.classList.add('right');});
+    const ok=b&&b.dataset.k===r.v; if(b&&!ok)b.classList.add('wrong');
+    let msg; if(ok){ent.lock=1;msg='<b>LOCKED!</b> +'+hit(50);} else {miss();msg=b?'<b>Not quite.</b> '+r.v+' = '+VERBS[r.v]+'.':'<b>Time!</b> '+r.v+' = '+VERBS[r.v]+'.';}
+    const fb=document.getElementById('fb');fb.classList.add('show');fb.innerHTML=msg+'<br><button class="btn alt" style="margin-top:10px;font-size:18px" onclick="step2()">STEP 2 →</button>';
+  }
+}
+function step2(){
+  const r=S.rounds[S.i].r, ent=S.log[S.log.length-1];
+  const opts=FH.shuffle(r.o.map((t,i)=>({t,ok:i===0})));
+  app.innerHTML=hud()+`<div class="cat">STEP 2 · WHICH ANSWER OBEYS "${r.v.toUpperCase()}"?</div>${S.streak>1?`<div class="combo">x${mult().toFixed(2)}</div>`:''}
+  <div class="prompt">${FH.esc(r.p)}</div><div class="snip">${FH.esc(r.s)}</div>
+  <div id="ops">${opts.map(o=>`<button class="opt" data-ok="${o.ok}">${FH.esc(o.t)}</button>`).join('')}</div><div class="feedback" id="fb"></div>`;
+  startTimer(25,()=>done(null));
+  document.querySelectorAll('#ops .opt').forEach(b=>b.onclick=()=>done(b));
+  function done(b){
+    clearInterval(TT);document.querySelectorAll('#ops .opt').forEach(x=>{x.disabled=true;if(x.dataset.ok==='true')x.classList.add('right');});
+    const ok=b&&b.dataset.ok==='true'; if(b&&!ok)b.classList.add('wrong');
+    let msg; if(ok){ent.ans=1;msg='<span class="big">DING DING!</span> +'+hit(100);} else {miss();msg='<span class="big">'+(b?'BZZZT.':'TIME!')+'</span>';}
+    const fb=document.getElementById('fb');fb.classList.add('show');
+    fb.innerHTML=msg+'<br>'+FH.esc(r.w)+'<br><button class="btn" style="margin-top:10px;font-size:18px" onclick="nextRound()">'+(S.i<S.rounds.length-1?'NEXT ROUND →':'FINAL SCORE →')+'</button>';
+  }
+}
+function writeRound(w){
+  const ent={part:'Write: chmod for '+w.f,lock:'-',ans:0};S.log.push(ent);
+  app.innerHTML=hud()+`<div class="cat">LIGHTNING ROUND · WRITE</div>
+  <div class="prompt"><span class="vb">Write</span> one or more chmod commands that do this to <b>${w.f}</b>: ${FH.esc(w.d)}</div>
+  <div class="snip">Current:  -${w.from}  ${w.f}\n${FH.describePerm(w.from)}</div>
+  <input class="cmd" id="cmd" placeholder="chmod ..." autocomplete="off" spellcheck="false">
+  <p style="margin-top:12px"><button class="btn" id="go">LOCK IT IN</button></p><div class="feedback" id="fb"></div>`;
+  const inp=document.getElementById('cmd');inp.focus();
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')submit();});
+  document.getElementById('go').onclick=submit;
+  startTimer(45,()=>submit(true));
+  let sent=false;
+  function submit(timeout){
+    if(sent) return; sent=true; clearInterval(TT); inp.disabled=true;
+    const files={};files[w.f]=w.from; const res=FH.runChmod(inp.value,files);
+    let msg; const after=res.ok&&res.changed[w.f]?res.changed[w.f].after:null;
+    if(res.ok&&after===w.to){ent.ans=1;msg='<span class="big">PERFECT SYNTAX!</span> +'+hit(150)+'<br>Result: -'+after;}
+    else{miss();msg='<span class="big">'+(timeout===true&&!inp.value?'TIME!':'BZZZT.')+'</span><br>'+(res.ok?(after?'That produces -'+after+', but the target is -'+w.to+'.':'That command did not touch '+w.f+'.'):FH.esc(res.error));}
+    const oct=FH.permToNums(w.to).join('');
+    const fb=document.getElementById('fb');fb.classList.add('show');
+    fb.innerHTML=msg+'<br><b>Model answers:</b> chmod '+oct+' '+w.f+'  (octal) · symbolic works too.<br><button class="btn" style="margin-top:10px;font-size:18px" onclick="nextRound()">'+(S.i<S.rounds.length-1?'NEXT ROUND →':'FINAL SCORE →')+'</button>';
+  }
+}
+function nextRound(){ if(S.i<S.rounds.length-1){S.i++;round();} else final(); }
+function final(){
+  clearInterval(TT); const pct=Math.round(S.right/S.total*100); FH.saveBest('verb',pct);
+  const best=FH.load('verbHigh',0); if(S.score>best) FH.save('verbHigh',S.score);
+  const byVerb={}; S.rounds.forEach((R,i)=>{const v=R.t==='write'?'Write':R.r.v; const l=S.log[i]; byVerb[v]=byVerb[v]||[0,0]; byVerb[v][0]+=(l.ans?1:0); byVerb[v][1]++;});
+  app.innerHTML=`<h1 style="font-size:56px">FINAL SCORE</h1><div class="tagline">${S.name?FH.esc(S.name).toUpperCase()+' · ':''}${FH.today()}</div>
+  <p class="center" style="font-family:Righteous;font-size:64px;color:var(--teal)">${S.score}</p>
+  <p class="center">Accuracy <b>${pct}%</b> · Best streak <b>${S.bestStreak}</b> · House record <b>${Math.max(best,S.score)}</b></p>
+  <div class="rules">${Object.keys(byVerb).map(v=>`<div><b>${v}</b>${byVerb[v][0]} / ${byVerb[v][1]} answers</div>`).join('')}</div>
+  <table class="rep"><tr><th>Round</th><th>Verb locked</th><th>Answer</th></tr>${S.log.map(l=>`<tr><td>${FH.esc(l.part)}</td><td>${l.lock==='-'?'—':l.lock?'✓':'✗'}</td><td>${l.ans?'✓':'✗'}</td></tr>`).join('')}</table>
+  <p class="center noprint" style="margin-top:18px"><button class="btn" onclick="window.print()">SAVE AS PDF</button> <button class="btn alt" onclick="title()">PLAY AGAIN</button></p>`;
+}
+title();
+</script>
+</body>
+</html>
